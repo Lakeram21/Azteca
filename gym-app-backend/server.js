@@ -1,0 +1,26 @@
+import express from "express";
+import cors from "cors";
+import usersRouter from "./routes/users.js";
+import paymentsRouter from "./routes/payments.js";
+import workoutRouter from "./routes/workoutProgram.js";
+import assignworkoutRouter from "./routes/assignProgram.js";
+
+const app = express();
+
+// CORS configuration for your React frontend
+app.use(cors({
+  origin: "http://localhost:5173",       // React dev server
+}));
+
+// JSON body parser
+app.use(express.json());
+
+// Routes
+app.use("/users", usersRouter);
+app.use("/payments", paymentsRouter);
+app.use("/workout-programs", workoutRouter);
+app.use("/assign-program", assignworkoutRouter);
+
+// Start server on a port that’s free
+const PORT = 5001;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

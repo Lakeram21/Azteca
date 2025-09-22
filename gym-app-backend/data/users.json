@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1756363410788,
+    "name": "Lakeram Narine",
+    "email": "lake@gmail.com",
+    "phone": "2087100585",
+    "password": "password",
+    "role": "admin"
+  },
+  {
+    "id": 1756364193811,
+    "name": "Ryan",
+    "email": "ryan@gmail.com",
+    "phone": "2087100585",
+    "password": "password",
+    "role": "client"
+  },
+  {
+    "id": 1756416692984,
+    "name": "Paul",
+    "email": "paul@gmail.com",
+    "phone": "1223443",
+    "password": "password",
+    "role": "client"
+  },
+  {
+    "id": 1756438380053,
+    "name": "Ana",
+    "email": "ana@gmail.com",
+    "phone": "23734574",
+    "password": "password",
+    "role": "client"
+  }
+]

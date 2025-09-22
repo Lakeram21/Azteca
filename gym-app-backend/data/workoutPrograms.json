@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "name": "Back Workout",
+    "description": "This will work the entire back",
+    "exercises": [
+      {
+        "name": "Pull Ups",
+        "sets": 3,
+        "reps": 10,
+        "notes": "Wide Grip"
+      },
+      {
+        "name": "Deadlift",
+        "sets": 4,
+        "reps": 5,
+        "notes": "Keep your back straight"
+      }
+    ],
+    "createdBy": 1756363410788,
+    "createdAt": "2025-08-29T01:57:51.486Z"
+  },
+  {
+    "id": 3,
+    "name": "Chest Workout",
+    "description": "This will work the entire Chest",
+    "exercises": [
+      {
+        "name": "Bench Press",
+        "sets": 4,
+        "reps": 0,
+        "notes": "This works the overall Check"
+      },
+      {
+        "name": "Incline Bench Press",
+        "sets": 3,
+        "reps": 0,
+        "notes": "Works the Lower Chest"
+      }
+    ],
+    "createdBy": 1756363410788,
+    "createdAt": "2025-08-29T01:59:22.999Z"
+  },
+  {
+    "id": 4,
+    "name": "Arm Workout",
+    "description": "This is a total Arm work out",
+    "exercises": [
+      {
+        "name": "Bicep Curls",
+        "sets": 3,
+        "reps": 12,
+        "notes": "Use Dumbells"
+      },
+      {
+        "name": "Tricep Dips",
+        "sets": 3,
+        "reps": 15,
+        "notes": "Use Parallel Bars"
+      }
+    ],
+    "createdBy": 1756363410788,
+    "createdAt": "2025-08-29T02:03:10.512Z"
+  },
+  {
+    "id": 5,
+    "name": "Leg Workout",
+    "description": "This is a total Leg work out",
+    "exercises": [
+      {
+        "name": "Leg Press",
+        "sets": 3,
+        "reps": 12,
+        "notes": "Quads"
+      }
+    ],
+    "createdBy": 1756363410788,
+    "createdAt": "2025-08-29T02:05:15.644Z"
+  },
+  {
+    "id": 5,
+    "name": "Complete Butt Day",
+    "description": "This is to give you big butt",
+    "exercises": [
+      {
+        "name": "Squat",
+        "sets": 2,
+        "reps": 12,
+        "notes": "Watch your form"
+      }
+    ],
+    "createdBy": 1756363410788,
+    "createdAt": "2025-08-29T03:36:15.187Z"
+  },
+  {
+    "id": 6,
+    "name": "Advance Arm Exercise",
+    "description": "",
+    "exercises": [
+      {
+        "name": "Bicep curl",
+        "sets": 3,
+        "reps": 12,
+        "notes": "these are crazy"
+      }
+    ],
+    "createdBy": 1756363410788,
+    "createdAt": "2025-09-03T06:39:41.256Z"
+  }
+]
