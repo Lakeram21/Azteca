@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import PaymentForm from "../components/PaymentForm";
-import PaymentsTable from "../components/PaymentsTable";
-import ClientPaymentsTable from "../components/ClientPaymentsTable";
-import ClientWorkoutProgramsTable from "../components/ClientWorkoutProgram";
-import ClientsTable from "../components/ClientsTable";
-import WorkoutProgramsTable from "../components/WorkoutProgramsTable";
-import WorkoutProgramForm from "../components/WorkoutProgramForm";
-import AdminQRScannerModal from "../components/AdminQRScannerModal";
+import PaymentForm from "../components/PaymentForm.jsx";
+import PaymentsTable from "../components/PaymentsTable.jsx";
+import ClientPaymentsTable from "../components/ClientPaymentsTable.jsx";
+import ClientWorkoutProgramsTable from "../components/ClientWorkoutProgram.jsx";
+import ClientsTable from "../components/ClientsTable.jsx";
+import WorkoutProgramsTable from "../components/workoutProgramsTable.jsx";
+import WorkoutProgramForm from "../components/WorkoutProgramForm.jsx";
+import AdminQRScannerModal from "../components/AdminQRScannerModal.jsx";
 
 function Dashboard({ user }) {
   const [activeSection, setActiveSection] = useState(null);
