@@ -124,5 +124,126 @@
     "amount": 600,
     "date": "2025-09-16",
     "durationDays": 6
+  },
+  {
+    "id": 15,
+    "userId": 1756363410788,
+    "clientId": "1756416692984",
+    "type": "per several",
+    "amount": 340,
+    "date": "2025-09-22",
+    "durationDays": null
+  },
+  {
+    "id": 16,
+    "userId": 1756363410788,
+    "clientId": "1756364193811",
+    "type": "per several",
+    "amount": 345,
+    "date": "2025-10-06",
+    "durationDays": null,
+    "selectedDays": []
+  },
+  {
+    "id": 17,
+    "userId": 1756363410788,
+    "clientId": "1756364193811",
+    "type": "per several",
+    "amount": 234,
+    "date": "2025-09-25",
+    "durationDays": null,
+    "selectedDays": []
+  },
+  {
+    "id": 18,
+    "userId": 1756363410788,
+    "clientId": "1756364193811",
+    "type": "per several",
+    "amount": 8,
+    "date": "2025-09-18",
+    "durationDays": null,
+    "selectedDays": []
+  },
+  {
+    "id": 19,
+    "userId": 1756363410788,
+    "clientId": "1756364193811",
+    "type": "per several",
+    "amount": 8,
+    "date": "2025-09-17",
+    "durationDays": null,
+    "selectedDays": []
+  },
+  {
+    "id": 20,
+    "userId": 1756363410788,
+    "clientId": "1756363410788",
+    "type": "per several",
+    "amount": 8,
+    "date": "2025-09-25",
+    "durationDays": null,
+    "selectedDays": []
+  },
+  {
+    "id": 21,
+    "userId": 1756363410788,
+    "clientId": "1756364193811",
+    "type": "per several",
+    "amount": 8,
+    "date": "2025-09-18",
+    "durationDays": null,
+    "selectedDays": []
+  },
+  {
+    "id": 22,
+    "userId": 1756363410788,
+    "clientId": "1756364193811",
+    "type": "per several",
+    "amount": 8,
+    "date": "2025-09-18",
+    "durationDays": null,
+    "selectedDates": [
+      "2025-09-23",
+      "2025-09-18",
+      "2025-09-20"
+    ]
+  },
+  {
+    "id": 23,
+    "userId": 1756363410788,
+    "clientId": "1756438380053",
+    "type": "per several",
+    "amount": 56,
+    "date": "2025-09-22",
+    "durationDays": null,
+    "selectedDates": [
+      "2025-09-23",
+      "2025-09-25",
+      "2025-09-27"
+    ]
+  },
+  {
+    "id": 24,
+    "userId": 1756363410788,
+    "clientId": "1756364193811",
+    "type": "per several",
+    "amount": 45,
+    "date": "2025-09-22",
+    "durationDays": null,
+    "selectedDates": [
+      "2025-09-23",
+      "2025-09-26",
+      "2025-09-27"
+    ]
+  },
+  {
+    "id": 25,
+    "userId": 1756363410788,
+    "clientId": "1756416692984",
+    "type": "per month",
+    "amount": 3340,
+    "date": "2025-09-26",
+    "durationDays": null,
+    "selectedDates": []
   }
 ]

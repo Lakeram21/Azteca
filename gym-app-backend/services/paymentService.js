@@ -62,9 +62,9 @@ export function getPaymentById(paymentId) {
 }
 
 
-export function addPayment({ userId, clientId, type, amount, date, durationDays }) {
+export function addPayment({ userId, clientId, type, amount, date, durationDays, selectedDates }) {
   const payments = readJson(paymentsFile);
-
+  console.log("selectedDays:", selectedDates);
   const newPayment = {
     id: payments.length + 1,
     userId,
@@ -73,6 +73,7 @@ export function addPayment({ userId, clientId, type, amount, date, durationDays 
     amount,
     date,
     durationDays: durationDays || null,
+    selectedDates: selectedDates || []
   };
 
   payments.push(newPayment);

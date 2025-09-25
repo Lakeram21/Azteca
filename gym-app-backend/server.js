@@ -16,6 +16,9 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "API is running" });
+});
 app.use("/users", usersRouter);
 app.use("/payments", paymentsRouter);
 app.use("/workout-programs", workoutRouter);
