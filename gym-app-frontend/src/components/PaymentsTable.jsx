@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 // Helper to check if payment is valid
 function isPaymentValid(payment) {
   const today = new Date();
@@ -82,7 +84,7 @@ export default function PaymentsTable() {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/payments");
+        const res = await axios.get(API_URL+"/payments");
         console.log("Fetched payments:", res.data);
         setPayments(res.data || []);
       } catch (err) {

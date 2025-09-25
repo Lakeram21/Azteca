@@ -7,7 +7,7 @@ import ClientsTable from "../components/ClientsTable.jsx";
 import WorkoutProgramsTable from "../components/workoutProgramsTable.jsx";
 import WorkoutProgramForm from "../components/WorkoutProgramForm.jsx";
 import AdminQRScannerModal from "../components/AdminQRScannerModal.jsx";
-
+const API_URL = import.meta.env.VITE_API_URL;
 function Dashboard({ user }) {
   const [activeSection, setActiveSection] = useState(null);
   const [programs, setPrograms] = useState([]);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import EditClientForm from "./EditClientForm";
-
+const API_URL = import.meta.env.VITE_API_URL;
 export default function ClientsTable() {
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
@@ -9,7 +9,7 @@ export default function ClientsTable() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/users");
+        const res = await axios.get(API_URL+"http://localhost:5001/users");
         setClients(res.data || []);
       } catch (err) {
         console.error("Failed to fetch clients", err);

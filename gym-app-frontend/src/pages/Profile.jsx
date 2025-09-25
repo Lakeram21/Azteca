@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+const API_URL = import.meta.env.VITE_API_URL;
 export default function Profile({ user, setUser }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -30,7 +30,7 @@ export default function Profile({ user, setUser }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.put(`http://localhost:5001/users/${user.id}`, formData);
+      const res = await axios.put(`${API_URL}/users/${user.id}`, formData);
       setMessage({ text: "Profile updated successfully!", type: "success" });
       setUser(res.data);
     } catch (err) {

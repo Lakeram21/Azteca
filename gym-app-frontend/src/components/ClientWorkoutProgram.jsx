@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
+const API_URL = import.meta.env.VITE_API_URL;
 export default function ClientWorkoutProgramsTable({ user }) {
   const [assignments, setAssignments] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null); // For modal
@@ -9,7 +9,7 @@ export default function ClientWorkoutProgramsTable({ user }) {
     const fetchAssignments = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5001/assign-program/${user.id}`
+          `${API_URL}/assign-program/${user.id}`
         );
         console.log("Fetched assignments:", res.data);
         setAssignments(res.data || []);

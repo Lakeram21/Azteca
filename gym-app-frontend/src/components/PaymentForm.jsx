@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+const API_URL = import.meta.env.VITE_API_URL;
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export default function PaymentsPage({ user }) {
@@ -19,7 +19,7 @@ export default function PaymentsPage({ user }) {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/users");
+        const res = await axios.get(API_URL+"/users");
         setUsers(res.data || []);
       } catch (err) {
         console.error("Failed to fetch users", err);
@@ -76,7 +76,7 @@ export default function PaymentsPage({ user }) {
         payload.selectedDates = selectedDates;
       }
 
-      await axios.post("http://localhost:5001/payments", payload, {
+      await axios.post(API_URL+"/payments", payload, {
         headers: { "Content-Type": "application/json" }
       });
 

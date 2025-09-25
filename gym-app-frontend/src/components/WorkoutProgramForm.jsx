@@ -1,7 +1,7 @@
 // components/WorkoutProgramForm.jsx
 import React, { useState } from "react";
 import axios from "axios";
-
+const API_URL = import.meta.env.VITE_API_URL;
 export default function WorkoutProgramForm({ user, onCreated }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -39,7 +39,7 @@ export default function WorkoutProgramForm({ user, onCreated }) {
     e.preventDefault();
     try {
       const createdAt = new Date().toISOString();
-      const res = await axios.post("http://localhost:5001/workout-programs", {
+      const res = await axios.post(API_URL+"/workout-programs", {
         userId: user.id,
         name,
         description,

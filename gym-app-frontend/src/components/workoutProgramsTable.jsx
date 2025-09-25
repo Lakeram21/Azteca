@@ -1,7 +1,7 @@
 // components/WorkoutProgramsTable.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
+const API_URL = import.meta.env.VITE_API_URL;
 export default function WorkoutProgramsTable({ user }) {
   const [programs, setPrograms] = useState([]);
   const [clients, setClients] = useState([]);
@@ -11,7 +11,7 @@ export default function WorkoutProgramsTable({ user }) {
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/workout-programs");
+        const res = await axios.get(API_URL+"/workout-programs");
         setPrograms(res.data);
       } catch (err) {
         console.error("Failed to fetch programs", err);
@@ -20,7 +20,7 @@ export default function WorkoutProgramsTable({ user }) {
 
     const fetchClients = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/users");
+        const res = await axios.get(API_URL+"/users");
         setClients(res.data);
       } catch (err) {
         console.error("Failed to fetch clients", err);
@@ -39,7 +39,7 @@ export default function WorkoutProgramsTable({ user }) {
   const handleAssignSubmit = async () => {
     if (selectedClients.length === 0) return alert("Select at least one client!");
     try {
-      await axios.post("http://localhost:5001/assign-program", {
+      await axios.post(API_URL+"/assign-program", {
         programId: selectedProgram.id,
         clientId: selectedClients[0],
         createdBy: user.id,

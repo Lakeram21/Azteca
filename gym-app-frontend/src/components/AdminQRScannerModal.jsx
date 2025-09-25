@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function AdminQRScannerModal({ onClose }) {
   const [scanData, setScanData] = useState(null);
@@ -41,7 +42,7 @@ export default function AdminQRScannerModal({ onClose }) {
     try {
       // Fetch payment from backend
       const res = await axios.get(
-        `http://localhost:5001/payments/${scanData.payment.id}`
+        `${API_URL}/payments/${scanData.payment.id}`
       );
       const paymentFromBackend = res.data;
 

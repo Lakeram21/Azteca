@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+const API_URL = import.meta.env.VITE_API_URL;
 export default function EditClientForm({ client, onClose }) {
   const [formData, setFormData] = useState({ ...client });
   const [message, setMessage] = useState("");
@@ -12,7 +12,7 @@ export default function EditClientForm({ client, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5001/clients/${client.id}`, formData);
+      await axios.put(`${API_URL}/clients/${client.id}`, formData);
       setMessage("Client updated successfully!");
       setTimeout(onClose, 1000); // Auto-close after 1 second
     } catch (err) {

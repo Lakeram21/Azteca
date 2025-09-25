@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { QRCode } from "react-qrcode-logo"; // QRCode component
-
+const API_URL = import.meta.env.VITE_API_URL;
 export default function ClientPaymentsTable({ user }) {
   const [activePayments, setActivePayments] = useState([]);
   const [inactivePayments, setInactivePayments] = useState([]);
@@ -73,7 +73,7 @@ export default function ClientPaymentsTable({ user }) {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/payments");
+        const res = await axios.get(API_URL+"http://localhost:5001/payments");
         const clientPayments = (res.data || []).filter(
           (p) => String(p.clientId) === String(user.id)
         );
