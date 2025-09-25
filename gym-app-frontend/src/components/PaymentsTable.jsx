@@ -3,27 +3,74 @@ import axios from "axios";
 
 // Helper to check if payment is valid
 function isPaymentValid(payment) {
-  const startDate = new Date(payment.date);
-  let endDate = new Date(startDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // normalize to midnight
 
   switch (payment.type) {
-    case "per day":
+    case "per day": {
+      const startDate = new Date(payment.date);
+      const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + 1);
-      break;
-    case "per week":
-      endDate.setDate(startDate.getDate() + 7);
-      break;
-    case "per month":
-      endDate.setMonth(startDate.getMonth() + 1);
-      break;
-    case "per several":
-      endDate.setDate(startDate.getDate() + (payment.durationDays || 0));
-      break;
-    default:
-      endDate = startDate;
-  }
+      return today < endDate;
+    }
 
-  return new Date() < endDate;
+    case "per week": {
+      const startDate = new Date(payment.date);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 7);
+      return today < endDate;
+    }
+
+    case "per month": {
+      const startDate = new Date(payment.date);
+      const endDate = new Date(startDate);
+      endDate.setMonth(startDate.getMonth() + 1);
+      return today < endDate;
+    }
+
+    case "per several": {
+      // payment.selectedDates is an array of ISO date strings
+      if (!Array.isArray(payment.selectedDates) || payment.selectedDates.length === 0) {
+        return false;
+      }
+      return payment.selectedDates.some((d) => {
+        const date = new Date(d);
+        date.setHours(0, 0, 0, 0);
+        return date.getTime() === today.getTime();
+      });
+    }
+
+    default:
+      return false;
+  }
+}
+
+// Helper to get end date
+function getEndDate(payment) {
+  switch (payment.type) {
+    case "per day":
+      const dayEnd = new Date(payment.date);
+      dayEnd.setDate(dayEnd.getDate() + 1);
+      return dayEnd;
+
+    case "per week":
+      const weekEnd = new Date(payment.date);
+      weekEnd.setDate(weekEnd.getDate() + 7);
+      return weekEnd;
+
+    case "per month":
+      const monthEnd = new Date(payment.date);
+      monthEnd.setMonth(monthEnd.getMonth() + 1);
+      return monthEnd;
+
+    case "per several":
+      if (!Array.isArray(payment.selectedDates) || payment.selectedDates.length === 0) return new Date(payment.date);
+      const dates = payment.selectedDates.map(d => new Date(d));
+      return new Date(Math.max(...dates.map(d => d.getTime())));
+
+    default:
+      return new Date(payment.date);
+  }
 }
 
 export default function PaymentsTable() {
@@ -48,8 +95,8 @@ export default function PaymentsTable() {
   const filteredPayments = payments.filter(
     (p) =>
       (p.client.name &&
-        p.client.email.toLowerCase().includes(search.toLowerCase())) ||
-      (p.client.email&&
+        p.client.name.toLowerCase().includes(search.toLowerCase())) ||
+      (p.client.email &&
         p.client.email.toLowerCase().includes(search.toLowerCase())) ||
       (p.client.id && p.client.id.toString().includes(search))
   );
@@ -87,8 +134,9 @@ export default function PaymentsTable() {
               <th className="p-3 text-left">Client Email</th>
               <th className="p-3 text-left">Type</th>
               <th className="p-3 text-left">Amount</th>
-              <th className="p-3 text-left">Date</th>
-              <th className="p-3 text-left">Duration</th>
+              <th className="p-3 text-left">Start Date</th>
+              <th className="p-3 text-left">End Date</th>
+              <th className="p-3 text-left">Selected Dates</th>
               <th className="p-3 text-left">Status</th>
             </tr>
           </thead>
@@ -101,12 +149,17 @@ export default function PaymentsTable() {
                 >
                   <td className="p-3">{p.id}</td>
                   <td className="p-3">{p.clientId}</td>
-                  <td className="p-3 font-semibold">{p.client.name|| "-"}</td>
+                  <td className="p-3 font-semibold">{p.client.name || "-"}</td>
                   <td className="p-3">{p.client.email || "-"}</td>
                   <td className="p-3 capitalize">{p.type}</td>
                   <td className="p-3 font-bold text-green-400">${p.amount}</td>
                   <td className="p-3">{p.date}</td>
-                  <td className="p-3">{p.durationDays || "-"}</td>
+                  <td className="p-3">{getEndDate(p).toISOString().split("T")[0]}</td>
+                  <td className="p-3">
+                    {p.type === "per several" && p.selectedDates
+                      ? p.selectedDates.join(", ")
+                      : "-"}
+                  </td>
                   <td className="p-3">
                     {isPaymentValid(p) ? (
                       <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">
@@ -122,7 +175,7 @@ export default function PaymentsTable() {
               ))
             ) : (
               <tr>
-                <td colSpan="9" className="text-center py-4 text-gray-400">
+                <td colSpan="10" className="text-center py-4 text-gray-400">
                   No payments found
                 </td>
               </tr>

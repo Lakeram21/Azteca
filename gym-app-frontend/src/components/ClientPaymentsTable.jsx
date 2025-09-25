@@ -7,52 +7,67 @@ export default function ClientPaymentsTable({ user }) {
   const [inactivePayments, setInactivePayments] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
+  // Updated isPaymentValid to handle selectedDates
   function isPaymentValid(payment) {
-    const startDate = new Date(payment.date);
-    const endDate = new Date(startDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // normalize
 
     switch (payment.type) {
       case "per day":
-        endDate.setDate(startDate.getDate() + 1);
-        break;
-      case "per week":
-        endDate.setDate(startDate.getDate() + 7);
-        break;
-      case "per month":
-        endDate.setDate(startDate.getDate() + 30);
-        break;
-      case "per several":
-        endDate.setDate(startDate.getDate() + (payment.durationDays || 0));
-        break;
-      default:
-        endDate.setDate(startDate.getDate());
-    }
+        const dayEnd = new Date(payment.date);
+        dayEnd.setDate(dayEnd.getDate() + 1);
+        return today < dayEnd;
 
-    return new Date() < endDate;
+      case "per week":
+        const weekEnd = new Date(payment.date);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+        return today < weekEnd;
+
+      case "per month":
+        const monthEnd = new Date(payment.date);
+        monthEnd.setMonth(monthEnd.getMonth() + 1);
+        return today < monthEnd;
+
+      case "per several":
+        if (!Array.isArray(payment.selectedDates) || payment.selectedDates.length === 0) return false;
+        return payment.selectedDates.some(d => {
+          const date = new Date(d);
+          date.setHours(0, 0, 0, 0);
+          return date.getTime() === today.getTime();
+        });
+
+      default:
+        return false;
+    }
   }
 
+  // Updated getEndDate to show last date for per several
   function getEndDate(payment) {
-    const startDate = new Date(payment.date);
-    const endDate = new Date(startDate);
-
     switch (payment.type) {
       case "per day":
-        endDate.setDate(startDate.getDate() + 1);
-        break;
-      case "per week":
-        endDate.setDate(startDate.getDate() + 7);
-        break;
-      case "per month":
-        endDate.setDate(startDate.getDate() + 30);
-        break;
-      case "per several":
-        endDate.setDate(startDate.getDate() + (payment.durationDays || 0));
-        break;
-      default:
-        endDate.setDate(startDate.getDate());
-    }
+        const dayEnd = new Date(payment.date);
+        dayEnd.setDate(dayEnd.getDate() + 1);
+        return dayEnd;
 
-    return endDate;
+      case "per week":
+        const weekEnd = new Date(payment.date);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+        return weekEnd;
+
+      case "per month":
+        const monthEnd = new Date(payment.date);
+        monthEnd.setMonth(monthEnd.getMonth() + 1);
+        return monthEnd;
+
+      case "per several":
+        if (!Array.isArray(payment.selectedDates) || payment.selectedDates.length === 0) return new Date(payment.date);
+        // Return the latest date
+        const dates = payment.selectedDates.map(d => new Date(d));
+        return new Date(Math.max(...dates.map(d => d.getTime())));
+
+      default:
+        return new Date(payment.date);
+    }
   }
 
   useEffect(() => {
@@ -81,7 +96,14 @@ export default function ClientPaymentsTable({ user }) {
           activePayments.map((p) => {
             const qrData = JSON.stringify({
               user: { id: user.id, name: user.name, email: user.email },
-              payment: { id: p.id, amount: p.amount, type: p.type, startDate: p.date, endDate: getEndDate(p) }
+              payment: {
+                id: p.id,
+                amount: p.amount,
+                type: p.type,
+                startDate: p.date,
+                endDate: getEndDate(p),
+                selectedDates: p.selectedDates || null
+              }
             });
 
             return (
@@ -96,6 +118,9 @@ export default function ClientPaymentsTable({ user }) {
                   <p><span className="font-semibold">Amount:</span> ${p.amount}</p>
                   <p><span className="font-semibold">Type:</span> {p.type}</p>
                   <p><span className="font-semibold">Start Date:</span> {p.date}</p>
+                  {p.type === "per several" && (
+                    <p><span className="font-semibold">Selected Dates:</span> {p.selectedDates?.join(", ")}</p>
+                  )}
                   <p><span className="font-semibold">End Date:</span> {getEndDate(p).toISOString().split("T")[0]}</p>
                 </div>
 
@@ -139,6 +164,9 @@ export default function ClientPaymentsTable({ user }) {
                   <p><span className="font-semibold">Amount:</span> ${p.amount}</p>
                   <p><span className="font-semibold">Type:</span> {p.type}</p>
                   <p><span className="font-semibold">Start Date:</span> {p.date}</p>
+                  {p.type === "per several" && (
+                    <p><span className="font-semibold">Selected Dates:</span> {p.selectedDates?.join(", ")}</p>
+                  )}
                   <p><span className="font-semibold">End Date:</span> {getEndDate(p).toISOString().split("T")[0]}</p>
                 </div>
               ))}

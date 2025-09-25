@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
 export default function PaymentsPage({ user }) {
   const [paymentData, setPaymentData] = useState({
     clientId: "",
     type: "per day",
     amount: "",
     date: "",
-    durationDays: ""
+    durationDays: "",
+    selectedDays: [] // For multiple day selection
   });
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
@@ -26,7 +29,19 @@ export default function PaymentsPage({ user }) {
   }, []);
 
   const handleChange = (e) => {
-    setPaymentData({ ...paymentData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+
+    if (name === "selectedDays") {
+      let newSelected = [...paymentData.selectedDays];
+      if (checked) {
+        newSelected.push(value);
+      } else {
+        newSelected = newSelected.filter((d) => d !== value);
+      }
+      setPaymentData({ ...paymentData, selectedDays: newSelected });
+    } else {
+      setPaymentData({ ...paymentData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -39,8 +54,26 @@ export default function PaymentsPage({ user }) {
         date: paymentData.date,
         userId: user.id
       };
+
       if (paymentData.type === "per several") {
-        payload.durationDays = Number(paymentData.durationDays || 0);
+        if (!paymentData.selectedDays.length) {
+          alert("Select at least one day for multiple day payment");
+          return;
+        }
+
+        // Convert selected weekdays into actual dates
+        const start = new Date(paymentData.date);
+        const selectedDates = paymentData.selectedDays.map((day) => {
+          const dayIndex = WEEKDAYS.indexOf(day); // 0-based
+          const date = new Date(start);
+          // Find next occurrence of selected day
+          while (date.getDay() !== (dayIndex + 1) % 7) {
+            date.setDate(date.getDate() + 1);
+          }
+          return date.toISOString().split("T")[0];
+        });
+
+        payload.selectedDates = selectedDates;
       }
 
       await axios.post("http://localhost:5001/payments", payload, {
@@ -53,7 +86,8 @@ export default function PaymentsPage({ user }) {
         type: "per day",
         amount: "",
         date: "",
-        durationDays: ""
+        durationDays: "",
+        selectedDays: []
       });
     } catch (err) {
       console.error(err);
@@ -80,7 +114,7 @@ export default function PaymentsPage({ user }) {
           name="clientId"
           value={paymentData.clientId}
           onChange={handleChange}
-          className="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+          className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
           required
         >
           <option value="">Select a client</option>
@@ -111,30 +145,40 @@ export default function PaymentsPage({ user }) {
           placeholder="Amount"
           value={paymentData.amount}
           onChange={handleChange}
-          className="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+          className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
           required
         />
 
-        {/* Date */}
+        {/* Start Date */}
         <input
           type="date"
           name="date"
           value={paymentData.date}
           onChange={handleChange}
-          className="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+          className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
           required
         />
 
-        {/* Duration for "per several" */}
+        {/* Duration or days selection */}
         {paymentData.type === "per several" && (
-          <input
-            type="number"
-            name="durationDays"
-            placeholder="Number of days"
-            value={paymentData.durationDays}
-            onChange={handleChange}
-            className="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
-          />
+          <div className="space-y-2">
+            <p className="font-semibold">Select days:</p>
+            <div className="grid grid-cols-2 gap-2">
+              {WEEKDAYS.map((day) => (
+                <label key={day} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="selectedDays"
+                    value={day}
+                    checked={paymentData.selectedDays.includes(day)}
+                    onChange={handleChange}
+                    className="accent-yellow-400"
+                  />
+                  <span>{day}</span>
+                </label>
+              ))}
+            </div>
+          </div>
         )}
 
         <button
