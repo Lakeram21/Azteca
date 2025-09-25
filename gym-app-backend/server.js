@@ -25,5 +25,5 @@ app.use("/workout-programs", workoutRouter);
 app.use("/assign-program", assignworkoutRouter);
 
 // Start server on a port that’s free
-const PORT = 5001;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
