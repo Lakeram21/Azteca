@@ -7,4 +7,8 @@ export default defineConfig({
   css: {
     postcss: path.resolve('./postcss.config.mjs'),
   },
+  // Ensure Vite copies the `public` folder including _redirects
+  publicDir: 'public',
+  // Optional if your site is hosted at root
+  base: '/',
 })
