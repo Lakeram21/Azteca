@@ -9,7 +9,7 @@ export default function ClientsTable() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const res = await axios.get(API_URL+"http://localhost:5001/users");
+        const res = await axios.get(API_URL+"/users");
         setClients(res.data || []);
       } catch (err) {
         console.error("Failed to fetch clients", err);
