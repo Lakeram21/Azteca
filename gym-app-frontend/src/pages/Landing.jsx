@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
 // Workout Routines Data
 const routines = [
   {

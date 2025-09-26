@@ -1,7 +1,8 @@
 // components/WorkoutProgramForm.jsx
 import React, { useState } from "react";
 import axios from "axios";
-const API_URL = import.meta.env.VITE_API_URL;
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
 export default function WorkoutProgramForm({ user, onCreated }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -11,6 +12,7 @@ export default function WorkoutProgramForm({ user, onCreated }) {
   const [sets, setSets] = useState("");
   const [reps, setReps] = useState("");
   const [notes, setNotes] = useState("");
+  const [link, setLink] = useState("");
 
   const handleAddExercise = () => {
     if (!exerciseName.trim()) return;
@@ -22,6 +24,7 @@ export default function WorkoutProgramForm({ user, onCreated }) {
         sets: Number(sets) || 0,
         reps: Number(reps) || 0,
         notes: notes.trim(),
+        link: link.trim() || null,
       },
     ]);
 
@@ -110,11 +113,18 @@ export default function WorkoutProgramForm({ user, onCreated }) {
             onChange={(e) => setReps(e.target.value)}
             className="p-2 rounded border border-gray-700 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
-          <input
+          <textarea
             type="text"
             placeholder="Notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
+            className="p-2 rounded border border-gray-700 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
+          <textarea
+            type="text"
+            placeholder="Link"
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
             className="p-2 rounded border border-gray-700 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
         </div>

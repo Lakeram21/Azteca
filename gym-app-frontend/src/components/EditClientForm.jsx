@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-const API_URL = import.meta.env.VITE_API_URL;
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
 export default function EditClientForm({ client, onClose }) {
   const [formData, setFormData] = useState({ ...client });
   const [message, setMessage] = useState("");

@@ -1,7 +1,8 @@
 // components/WorkoutProgramsTable.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-const API_URL = import.meta.env.VITE_API_URL;
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
 export default function WorkoutProgramsTable({ user }) {
   const [programs, setPrograms] = useState([]);
   const [clients, setClients] = useState([]);
@@ -93,9 +94,18 @@ export default function WorkoutProgramsTable({ user }) {
                 <span className="font-semibold text-yellow-400">Exercises:</span>
                 <ul className="ml-4 mt-1 list-disc text-gray-200">
                   {p.exercises.map((e) => (
+                    <>
                     <li key={e.id}>
-                      {e.name} — {e.sets} sets of {e.reps} reps
+                      {e.name} — {e.sets} sets of {e.reps} reps : Link:  {e.link && <p className="text-gray-400 text-sm"><a
+                        href={e.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-yellow-400 underline hover:text-yellow-300"
+                      >
+                        {e.link}
+                      </a></p>}
                     </li>
+                    </>
                   ))}
                 </ul>
               </div>

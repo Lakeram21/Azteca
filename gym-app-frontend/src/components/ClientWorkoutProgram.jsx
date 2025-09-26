@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-const API_URL = import.meta.env.VITE_API_URL;
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
 export default function ClientWorkoutProgramsTable({ user }) {
   const [assignments, setAssignments] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null); // For modal
@@ -117,6 +118,14 @@ export default function ClientWorkoutProgramsTable({ user }) {
                     {ex.weight ? `| Weight: ${ex.weight}` : ""}
                   </p>
                   {ex.notes && <p className="text-gray-400 text-sm">Notes: {ex.notes}</p>}
+                  {ex.link && <p className="text-gray-400 text-sm"><a
+      href={ex.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-yellow-400 underline hover:text-yellow-300"
+    >
+      {ex.link}
+    </a></p>}
                 </li>
               ))}
             </ul>
