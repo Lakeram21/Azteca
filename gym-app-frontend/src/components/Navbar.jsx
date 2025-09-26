@@ -15,16 +15,14 @@ export default function Navbar({ user, setUser }) {
   const buttonClasses = "px-4 py-2 rounded-lg font-semibold transition-transform duration-200 transform hover:scale-105 shadow-md";
 
   return (
-    <nav className="bg-gray-900 text-gray-100 px-6 py-4 flex justify-between items-center shadow-lg">
-      
+    <nav className="bg-gray-900 text-gray-100 px-6 py-4 flex justify-between items-center shadow-lg sticky top-0 z-50">
       {/* Logo / Brand */}
       <div className="text-2xl font-bold tracking-wide text-white">
-        <Link to ="/">
-         <span className="text-yellow-400">Azteca</span>Gym
+        <Link to="/">
+          <span className="text-yellow-400">Azteca</span>Gym
         </Link>
-       
       </div>
-      
+
       {/* Links / Actions */}
       <div className="flex items-center space-x-4">
         <Link to="/dashboard" className={navLinkClasses}>
