@@ -9,7 +9,10 @@ const app = express();
 
 // CORS configuration for your React frontend
 app.use(cors({
-  origin: "https://azteca-1.onrender.com"   // React dev server
+  origin: [
+    "https://azteca-1.onrender.com", // deployed frontend
+    "http://localhost:5173"           // local dev frontend
+  ]// React dev server
 }));
 
 // JSON body parser
