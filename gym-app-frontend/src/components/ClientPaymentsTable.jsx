@@ -73,7 +73,7 @@ export default function ClientPaymentsTable({ user }) {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const res = await axios.get(API_URL+"http://localhost:5001/payments");
+        const res = await axios.get(API_URL+"/payments");
         const clientPayments = (res.data || []).filter(
           (p) => String(p.clientId) === String(user.id)
         );
