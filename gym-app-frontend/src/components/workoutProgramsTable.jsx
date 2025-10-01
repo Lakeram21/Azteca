@@ -96,7 +96,7 @@ export default function WorkoutProgramsTable({ user }) {
                   {p.exercises.map((e) => (
                     <>
                     <li key={e.id}>
-                      {e.name} — {e.sets} sets of {e.reps} reps : Link:  {e.link && <p className="text-gray-400 text-sm"><a
+                      {e.name} — {e.sets} sets of {e.reps} reps {e.link && <p className="text-gray-400 text-sm">Link: <a
                         href={e.link}
                         target="_blank"
                         rel="noopener noreferrer"
