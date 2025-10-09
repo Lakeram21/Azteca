@@ -1,27 +1,28 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { getAllUsers } from "../firebaseUsers";
+import { addPayment } from "../firebasePayments";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-export default function PaymentsPage({ user }) {
+export default function PaymentForm({ user, onPaymentRecorded }) {
   const [paymentData, setPaymentData] = useState({
     clientId: "",
     type: "per day",
     amount: "",
     date: "",
-    durationDays: "",
-    selectedDays: [] // For multiple day selection
+    selectedDays: []
   });
+
   const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState("");
 
   // Fetch all clients/users
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get(API_URL+"/users");
-        setUsers(res.data || []);
+        const allUsers = await getAllUsers();
+        setUsers(allUsers);
       } catch (err) {
         console.error("Failed to fetch users", err);
       }
@@ -29,16 +30,14 @@ export default function PaymentsPage({ user }) {
     fetchUsers();
   }, []);
 
+  // Handle form changes
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
 
     if (name === "selectedDays") {
-      let newSelected = [...paymentData.selectedDays];
-      if (checked) {
-        newSelected.push(value);
-      } else {
-        newSelected = newSelected.filter((d) => d !== value);
-      }
+      const newSelected = checked
+        ? [...paymentData.selectedDays, value]
+        : paymentData.selectedDays.filter((d) => d !== value);
       setPaymentData({ ...paymentData, selectedDays: newSelected });
     } else {
       setPaymentData({ ...paymentData, [name]: value });
@@ -48,12 +47,17 @@ export default function PaymentsPage({ user }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!paymentData.clientId) {
+        alert("Please select a client");
+        return;
+      }
+
       const payload = {
         clientId: paymentData.clientId,
         type: paymentData.type,
         amount: Number(paymentData.amount),
         date: paymentData.date,
-        userId: user.id
+        userId: user.uid
       };
 
       if (paymentData.type === "per several") {
@@ -62,12 +66,10 @@ export default function PaymentsPage({ user }) {
           return;
         }
 
-        // Convert selected weekdays into actual dates
         const start = new Date(paymentData.date);
         const selectedDates = paymentData.selectedDays.map((day) => {
-          const dayIndex = WEEKDAYS.indexOf(day); // 0-based
+          const dayIndex = WEEKDAYS.indexOf(day);
           const date = new Date(start);
-          // Find next occurrence of selected day
           while (date.getDay() !== (dayIndex + 1) % 7) {
             date.setDate(date.getDate() + 1);
           }
@@ -77,54 +79,66 @@ export default function PaymentsPage({ user }) {
         payload.selectedDates = selectedDates;
       }
 
-      await axios.post(API_URL+"/payments", payload, {
-        headers: { "Content-Type": "application/json" }
-      });
-
+      await addPayment(payload);
       setMessage("✅ Payment recorded successfully!");
       setPaymentData({
         clientId: "",
         type: "per day",
         amount: "",
         date: "",
-        durationDays: "",
         selectedDays: []
       });
+
+      if (onPaymentRecorded) onPaymentRecorded(payload); // callback to update parent Dashboard
+
     } catch (err) {
       console.error(err);
-      setMessage(err.response?.data?.error || "❌ Failed to record payment");
+      setMessage("❌ Failed to record payment");
     }
   };
 
+  // Filter users for search
+  const filteredUsers = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <h1 className="text-3xl font-extrabold text-yellow-400 mb-6 text-center">
-        Add Payment
-      </h1>
+    <div className="bg-gray-800/80 backdrop-blur-md shadow-xl rounded-2xl p-6 space-y-4 border-l-4 border-gray-500">
+      <h2 className="text-2xl font-bold text-yellow-400 mb-4">Add Payment</h2>
 
       {message && (
-        <p className="mb-4 text-center text-green-400 font-semibold">{message}</p>
+        <p className={`font-semibold ${message.startsWith("✅") ? "text-green-400" : "text-red-400"}`}>
+          {message}
+        </p>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-md mx-auto bg-gray-800 p-6 rounded-2xl shadow-2xl space-y-4"
-      >
-        {/* Client selector */}
-        <select
-          name="clientId"
-          value={paymentData.clientId}
-          onChange={handleChange}
-          className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
-          required
-        >
-          <option value="">Select a client</option>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.name} ({u.email})
-            </option>
-          ))}
-        </select>
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        {/* Client search and selection */}
+        <div className="space-y-2">
+          <input
+            type="text"
+            placeholder="Search client by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+          />
+          <select
+            name="clientId"
+            value={paymentData.clientId}
+            onChange={handleChange}
+            required
+            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+          >
+            <option value="">Select a client</option>
+            {filteredUsers.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name} ({u.email})
+              </option>
+            ))}
+          </select>
+        </div>
 
         {/* Payment type */}
         <select
@@ -146,27 +160,27 @@ export default function PaymentsPage({ user }) {
           placeholder="Amount"
           value={paymentData.amount}
           onChange={handleChange}
-          className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
           required
+          className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
         />
 
-        {/* Start Date */}
+        {/* Date */}
         <input
           type="date"
           name="date"
           value={paymentData.date}
           onChange={handleChange}
-          className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
           required
+          className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
         />
 
-        {/* Duration or days selection */}
+        {/* Multiple days */}
         {paymentData.type === "per several" && (
           <div className="space-y-2">
-            <p className="font-semibold">Select days:</p>
-            <div className="grid grid-cols-2 gap-2">
+            <p className="font-semibold text-white">Select days:</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {WEEKDAYS.map((day) => (
-                <label key={day} className="flex items-center space-x-2">
+                <label key={day} className="flex items-center space-x-2 cursor-pointer text-gray-200 hover:text-white transition">
                   <input
                     type="checkbox"
                     name="selectedDays"

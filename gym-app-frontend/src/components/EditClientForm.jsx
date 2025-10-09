@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { editUser } from "../firebaseUsers"; // make sure this points to your firebaseUsers.js
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
 export default function EditClientForm({ client, onClose }) {
   const [formData, setFormData] = useState({ ...client });
   const [message, setMessage] = useState("");
@@ -13,7 +12,9 @@ export default function EditClientForm({ client, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${API_URL}/clients/${client.id}`, formData);
+      // Call Firebase edit function
+      await editUser(client.id, formData);
+
       setMessage("Client updated successfully!");
       setTimeout(onClose, 1000); // Auto-close after 1 second
     } catch (err) {
@@ -26,7 +27,7 @@ export default function EditClientForm({ client, onClose }) {
     <div className="fixed inset-0 flex items-center justify-center z-50">
       {/* Background overlay */}
       <div
-        className="absolute inset-0  backdrop-blur-sm"
+        className="absolute inset-0 backdrop-blur-sm"
         onClick={onClose}
       ></div>
 
@@ -77,7 +78,18 @@ export default function EditClientForm({ client, onClose }) {
             />
           </div>
 
-          {/* Add other fields here with same style */}
+          <div>
+            <label className="block mb-1 text-gray-300 font-semibold">Role:</label>
+            <input
+              type="text"
+              name="role"
+              value={formData.role || ""}
+              onChange={handleChange}
+              className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+            />
+          </div>
+
+          {/* Add more fields if needed */}
 
           <div className="flex justify-between mt-4 gap-2">
             <button

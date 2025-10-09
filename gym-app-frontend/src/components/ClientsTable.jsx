@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import EditClientForm from "./EditClientForm";
+import { getAllUsers } from "../firebaseUsers";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
+
 export default function ClientsTable() {
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
 
   useEffect(() => {
-    const fetchClients = async () => {
+    const fetchUsers = async () => {
       try {
-        const res = await axios.get(API_URL+"/users");
-        setClients(res.data || []);
+        const allUsers = await getAllUsers();
+        setClients(allUsers);
       } catch (err) {
-        console.error("Failed to fetch clients", err);
+        console.error("Failed to fetch users", err);
       }
     };
-    fetchClients();
+    fetchUsers();
   }, []);
 
   return (

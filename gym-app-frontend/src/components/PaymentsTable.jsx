@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import { getAllPayments } from "../firebasePayments";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
 // Helper to check if payment is valid
@@ -84,9 +84,9 @@ export default function PaymentsTable() {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const res = await axios.get(API_URL+"/payments");
-        console.log("Fetched payments:", res.data);
-        setPayments(res.data || []);
+        const data = await getAllPayments(); // 👈 Firebase version
+        console.log("Fetched payments:", data);
+        setPayments(data || []);
       } catch (err) {
         console.error("Failed to fetch payments", err);
       }
@@ -130,8 +130,8 @@ export default function PaymentsTable() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-800 text-yellow-300 uppercase text-sm tracking-wider">
-              <th className="p-3 text-left">Payment ID</th>
-              <th className="p-3 text-left">Client ID</th>
+              {/* <th className="p-3 text-left">Payment ID</th>
+              <th className="p-3 text-left">Client ID</th> */}
               <th className="p-3 text-left">Client Name</th>
               <th className="p-3 text-left">Client Email</th>
               <th className="p-3 text-left">Type</th>
@@ -149,8 +149,8 @@ export default function PaymentsTable() {
                   key={p.id}
                   className="hover:bg-gray-800 transition-all duration-200 border-b border-gray-700"
                 >
-                  <td className="p-3">{p.id}</td>
-                  <td className="p-3">{p.clientId}</td>
+                  {/* <td className="p-3">{p.id}</td>
+                  <td className="p-3">{p.clientId}</td> */}
                   <td className="p-3 font-semibold">{p.client.name || "-"}</td>
                   <td className="p-3">{p.client.email || "-"}</td>
                   <td className="p-3 capitalize">{p.type}</td>

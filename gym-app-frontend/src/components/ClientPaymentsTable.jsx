@@ -1,71 +1,59 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { QRCode } from "react-qrcode-logo"; // QRCode component
+import { QRCode } from "react-qrcode-logo"; 
+import { getAllPayments } from "../firebasePayments";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
 export default function ClientPaymentsTable({ user }) {
   const [activePayments, setActivePayments] = useState([]);
   const [inactivePayments, setInactivePayments] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
-  // Updated isPaymentValid to handle selectedDates
   function isPaymentValid(payment) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // normalize
+    today.setHours(0, 0, 0, 0);
 
     switch (payment.type) {
       case "per day":
         const dayEnd = new Date(payment.date);
         dayEnd.setDate(dayEnd.getDate() + 1);
         return today < dayEnd;
-
       case "per week":
         const weekEnd = new Date(payment.date);
         weekEnd.setDate(weekEnd.getDate() + 7);
         return today < weekEnd;
-
       case "per month":
         const monthEnd = new Date(payment.date);
         monthEnd.setMonth(monthEnd.getMonth() + 1);
         return today < monthEnd;
-
       case "per several":
         if (!Array.isArray(payment.selectedDates) || payment.selectedDates.length === 0) return false;
         return payment.selectedDates.some(d => {
           const date = new Date(d);
-          date.setHours(0, 0, 0, 0);
+          date.setHours(0,0,0,0);
           return date.getTime() === today.getTime();
         });
-
       default:
         return false;
     }
   }
 
-  // Updated getEndDate to show last date for per several
   function getEndDate(payment) {
     switch (payment.type) {
       case "per day":
         const dayEnd = new Date(payment.date);
         dayEnd.setDate(dayEnd.getDate() + 1);
         return dayEnd;
-
       case "per week":
         const weekEnd = new Date(payment.date);
         weekEnd.setDate(weekEnd.getDate() + 7);
         return weekEnd;
-
       case "per month":
         const monthEnd = new Date(payment.date);
         monthEnd.setMonth(monthEnd.getMonth() + 1);
         return monthEnd;
-
       case "per several":
         if (!Array.isArray(payment.selectedDates) || payment.selectedDates.length === 0) return new Date(payment.date);
-        // Return the latest date
         const dates = payment.selectedDates.map(d => new Date(d));
         return new Date(Math.max(...dates.map(d => d.getTime())));
-
       default:
         return new Date(payment.date);
     }
@@ -74,37 +62,24 @@ export default function ClientPaymentsTable({ user }) {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const res = await axios.get(API_URL+"/payments");
-        const clientPayments = (res.data || []).filter(
-          (p) => String(p.clientId) === String(user.id)
-        );
-
-        setActivePayments(clientPayments.filter(isPaymentValid));
-        setInactivePayments(clientPayments.filter((p) => !isPaymentValid(p)));
+        const data = await getAllPayments(user.uid);
+        setActivePayments(data.filter(isPaymentValid));
+        setInactivePayments(data.filter(p => !isPaymentValid(p)));
       } catch (err) {
         console.error("Failed to fetch payments", err);
       }
     };
-
     fetchPayments();
-  }, [user.id]);
+  }, [user.uid]);
 
   return (
     <div className="bg-gray-800 p-6 border-yellow-200">
-      {/* Active Payments */}
       <div className="space-y-4">
         {activePayments.length > 0 ? (
           activePayments.map((p) => {
             const qrData = JSON.stringify({
-              user: { id: user.id, name: user.name, email: user.email },
-              payment: {
-                id: p.id,
-                amount: p.amount,
-                type: p.type,
-                startDate: p.date,
-                endDate: getEndDate(p),
-                selectedDates: p.selectedDates || null
-              }
+              userId: user.uid,
+              paymentId: p.id
             });
 
             return (
@@ -125,11 +100,11 @@ export default function ClientPaymentsTable({ user }) {
                   <p><span className="font-semibold">End Date:</span> {getEndDate(p).toISOString().split("T")[0]}</p>
                 </div>
 
-                {/* QR Code */}
-                <div className="bg-gray-100 p-2 rounded-xl">
+                <div className="bg-white p-4 rounded-xl inline-block">
                   <QRCode
                     value={qrData}
-                    size={220}
+                    size={350}        // larger QR for easier scanning
+                    ecLevel="H"       // high error correction
                     bgColor="#ffffff"
                     fgColor="#000000"
                   />
@@ -145,7 +120,6 @@ export default function ClientPaymentsTable({ user }) {
         )}
       </div>
 
-      {/* Inactive / Previous Payments */}
       {inactivePayments.length > 0 && (
         <div className="mt-6">
           <button

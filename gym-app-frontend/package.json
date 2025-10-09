@@ -20,6 +20,8 @@
     "@babel/runtime": "^7.28.4",
     "@yudiel/react-qr-scanner": "^2.3.1",
     "axios": "^1.11.0",
+    "firebase": "^12.3.0",
+    "jsqr": "^1.4.0",
     "react-qr-scanner": "^1.0.0-alpha.11",
     "react-qrcode-logo": "^4.0.0",
     "react-router-dom": "^7.8.2"

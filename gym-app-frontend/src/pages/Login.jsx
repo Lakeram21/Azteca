@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
+import { firebaseSignup, firebaseSignin } from "../firebaseAuth";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
 export default function Login({ setUser }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const [isSignup, setIsSignup] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -17,18 +17,20 @@ export default function Login({ setUser }) {
     setError("");
 
     try {
-      const url = isSignup
-        ? API_URL+"/users/signup"
-        : API_URL+"/users/login";
+      let userData;
 
-      const payload = isSignup ? { name, email, password, phone } : { email, password };
-      const res = await axios.post(url, payload);
+      if (isSignup) {
+        userData = await firebaseSignup(email, password, name);
+      } else {
+        userData = await firebaseSignin(email, password);
+      }
 
-      setUser(res.data);
-      localStorage.setItem("user", JSON.stringify(res.data));
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.error || "Server error");
+      console.error(err);
+      setError(err.message || "Firebase error");
     }
   };
 
@@ -52,13 +54,13 @@ export default function Login({ setUser }) {
               onChange={(e) => setName(e.target.value)}
               required
             />
-            <input
+            {/* <input
               type="text"
               placeholder="Phone"
               className="w-full mb-4 px-4 py-3 rounded-lg bg-gray-700 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-            />
+            /> */}
           </>
         )}
 

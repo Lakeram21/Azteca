@@ -1,15 +1,13 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
+import { getAllPayments } from "../firebasePayments";
 
 export default function AdminQRScannerModal({ onClose }) {
   const [scanData, setScanData] = useState(null);
   const [verificationResult, setVerificationResult] = useState(null);
   const lastDetectedRef = useRef(null);
 
-  // Payment validity function
+  // Payment validity check
   const isPaymentValid = (payment) => {
     const startDate = new Date(payment.date);
     const endDate = new Date(startDate);
@@ -22,10 +20,13 @@ export default function AdminQRScannerModal({ onClose }) {
         endDate.setDate(startDate.getDate() + 7);
         break;
       case "per month":
-        endDate.setDate(startDate.getDate() + 30);
+        endDate.setMonth(startDate.getMonth() + 1);
         break;
       case "per several":
-        endDate.setDate(startDate.getDate() + (payment.durationDays || 0));
+        if (payment.selectedDates?.length > 0) {
+          return payment.selectedDates.some((d) => new Date(d).getTime() === new Date().setHours(0,0,0,0));
+        }
+        endDate.setDate(startDate.getDate());
         break;
       default:
         endDate.setDate(startDate.getDate());
@@ -34,47 +35,45 @@ export default function AdminQRScannerModal({ onClose }) {
     return new Date() < endDate;
   };
 
-  const handleVerifyPayment = async () => {
-    if (!scanData?.payment?.id) {
-      alert("Invalid QR data");
-      return;
-    }
+  // Handle scan from camera
+  const handleScan = useCallback(async (result) => {
+    if (!result || !result[0]) return;
+
+    const rawValue = result[0].rawValue;
+    lastDetectedRef.current = rawValue;
 
     try {
-      // Fetch payment from backend
-      const res = await axios.get(
-        `${API_URL}/payments/${scanData.payment.id}`
-      );
-      const paymentFromBackend = res.data;
+      // Parse minimal QR: { userId, paymentId }
+      const parsed = JSON.parse(rawValue);
+      setScanData(parsed);
+      setVerificationResult(null);
 
-      // Verify user
-      const userMatches =
-        String(scanData.user.id) === String(paymentFromBackend.clientId) &&
-        scanData.user.email === paymentFromBackend.client.email;
+      // Fetch all payments for this user
+      const allPayments = await getAllPayments(parsed.userId);
+      const payment = allPayments.find((p) => p.id === parsed.paymentId);
 
-      // Verify payment details
-      const paymentMatches =
-        scanData.payment.amount === paymentFromBackend.amount &&
-        scanData.payment.type === paymentFromBackend.type;
+      if (!payment) {
+        setVerificationResult({ valid: false, error: "Payment not found" });
+        return;
+      }
 
-      // Verify validity
-      const valid = isPaymentValid(paymentFromBackend);
-
-      const allValid = userMatches && paymentMatches && valid;
+      const valid = isPaymentValid(payment);
 
       setVerificationResult({
-        valid: allValid,
+        valid,
+        backendPayment: payment,
         details: {
-          userMatches,
-          paymentMatches,
           valid,
         },
-        backendPayment: paymentFromBackend,
       });
     } catch (err) {
-      console.error("Verification error:", err);
-      setVerificationResult({ valid: false, error: "Failed to fetch payment" });
+      setScanData({ raw: rawValue });
+      setVerificationResult({ valid: false, error: "Failed to parse QR" });
     }
+  }, []);
+
+  const handleError = (err) => {
+    console.error("Scanner Error:", err);
   };
 
   return (
@@ -91,27 +90,30 @@ export default function AdminQRScannerModal({ onClose }) {
           Scan Payment QR
         </h2>
 
+        {/* Scanner with high resolution and autofocus */}
         <Scanner
-          onScan={(result) => {
-            if (result && result[0]) {
-              lastDetectedRef.current = result[0].rawValue;
-            }
+          onScan={handleScan}
+          onError={handleError}
+          className="w-full h-72 rounded-lg"
+          constraints={{
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            focusMode: "continuous",
+            frameRate: { ideal: 30 },
           }}
-          onError={(err) => console.error("Scanner Error:", err)}
-          constraints={{ facingMode: "environment", width: 640, height: 480 }}
-          styles={{ container: { width: "100%" } }}
+          videoStyle={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderRadius: "0.75rem",
+          }}
         />
 
         <button
           onClick={() => {
             if (lastDetectedRef.current) {
-              try {
-                setScanData(JSON.parse(lastDetectedRef.current));
-                setVerificationResult(null);
-              } catch {
-                setScanData({ raw: lastDetectedRef.current });
-                setVerificationResult(null);
-              }
+              handleScan([{ rawValue: lastDetectedRef.current }]);
             } else {
               alert("No QR code detected yet. Position a QR in front of the camera.");
             }
@@ -123,13 +125,6 @@ export default function AdminQRScannerModal({ onClose }) {
 
         {scanData && (
           <div className="mt-4 bg-gray-700 p-3 rounded-xl">
-            <button
-              onClick={handleVerifyPayment}
-              className="mb-2 w-full bg-green-600 text-white px-4 py-2 rounded-lg font-bold"
-            >
-              Verify Payment
-            </button>
-
             <h3 className="font-bold mb-2">Scanned Data:</h3>
             <pre className="text-xs">{JSON.stringify(scanData, null, 2)}</pre>
           </div>

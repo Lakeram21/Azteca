@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { getAssignedWorkouts, getWorkouts } from "../firebaseWorkouts";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
 export default function ClientWorkoutProgramsTable({ user }) {
@@ -7,20 +8,26 @@ export default function ClientWorkoutProgramsTable({ user }) {
   const [selectedAssignment, setSelectedAssignment] = useState(null); // For modal
 
   useEffect(() => {
-    const fetchAssignments = async () => {
-      try {
-        const res = await axios.get(
-          `${API_URL}/assign-program/${user.id}`
-        );
-        console.log("Fetched assignments:", res.data);
-        setAssignments(res.data || []);
-      } catch (err) {
-        console.error("Failed to fetch assignments", err);
-      }
-    };
+  const fetchAssignments = async () => {
+    try {
+      console.log("User: ",user)
+      const assigned = await getAssignedWorkouts(user.uid);
 
-    fetchAssignments();
-  }, [user.id]);
+      // Fetch workout details for each assigned program
+      const workouts = await getWorkouts(); // all workouts
+      const enriched = assigned.map((a) => ({
+        ...a,
+        workout: workouts.find((w) => w.id === a.workoutId) || null,
+      }));
+
+      setAssignments(enriched);
+    } catch (err) {
+      console.error("Failed to fetch assignments", err);
+    }
+  };
+
+  fetchAssignments();
+}, [user.id]);
 
   const renderProgress = (progress) => {
     if (!Array.isArray(progress) || progress.length === 0) return "No progress yet";
@@ -72,9 +79,9 @@ export default function ClientWorkoutProgramsTable({ user }) {
               {renderProgress(a.progress)}
 
               <p className="mt-2 text-gray-300 text-sm">
-                <strong>Created By:</strong> {a.createdBy} |{" "}
-                <strong>Created At:</strong>{" "}
-                {new Date(a.createdAt).toLocaleString()}
+                {/* <strong>Created By:</strong> {a.createdBy} |{" "} */}
+                <strong>Assigned At:</strong>{" "}
+                {new Date(a.assignedAt).toLocaleString()}
               </p>
 
               <button

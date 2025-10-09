@@ -1,12 +1,12 @@
-// components/WorkoutProgramForm.jsx
 import React, { useState } from "react";
-import axios from "axios";
+import { createWorkout, editWorkout } from "../firebaseWorkouts";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
-export default function WorkoutProgramForm({ user, onCreated }) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [exercises, setExercises] = useState([]);
+export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
+  const isEdit = !!workoutToEdit;
+
+  const [name, setName] = useState(workoutToEdit?.name || "");
+  const [description, setDescription] = useState(workoutToEdit?.description || "");
+  const [exercises, setExercises] = useState(workoutToEdit?.exercises || []);
 
   const [exerciseName, setExerciseName] = useState("");
   const [sets, setSets] = useState("");
@@ -32,6 +32,7 @@ export default function WorkoutProgramForm({ user, onCreated }) {
     setSets("");
     setReps("");
     setNotes("");
+    setLink("");
   };
 
   const handleRemoveExercise = (index) => {
@@ -40,23 +41,28 @@ export default function WorkoutProgramForm({ user, onCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const createdAt = new Date().toISOString();
-      const res = await axios.post(API_URL+"/workout-programs", {
-        userId: user.id,
-        name,
-        description,
-        exercises,
-        createdBy: user.id,
-        createdAt,
-      });
+    const payload = {
+      userId: user.id,
+      name,
+      description,
+      exercises,
+      createdBy: user.id,
+      createdAt: new Date().toISOString(),
+    };
 
-      onCreated(res.data);
-      setName("");
-      setDescription("");
-      setExercises([]);
+    try {
+      if (isEdit) {
+        await editWorkout(workoutToEdit.id, payload);
+        onCreated({ id: workoutToEdit.id, ...payload });
+      } else {
+        const newWorkout = await createWorkout(payload);
+        onCreated(newWorkout);
+        setName("");
+        setDescription("");
+        setExercises([]);
+      }
     } catch (err) {
-      console.error("Failed to create program:", err);
+      console.error("Failed to save workout:", err);
     }
   };
 
@@ -65,9 +71,11 @@ export default function WorkoutProgramForm({ user, onCreated }) {
       onSubmit={handleSubmit}
       className="bg-gray-900 text-white p-6 rounded-2xl shadow-lg mb-6"
     >
-      <h2 className="text-2xl font-bold mb-4 text-yellow-400">New Workout Program</h2>
+      <h2 className="text-2xl font-bold mb-4 text-yellow-400">
+        {isEdit ? "Edit Workout Program" : "New Workout Program"}
+      </h2>
 
-      {/* Program Info */}
+      {/* Program Name */}
       <div className="mb-4">
         <label className="block font-semibold mb-1">Program Name:</label>
         <input
@@ -79,6 +87,7 @@ export default function WorkoutProgramForm({ user, onCreated }) {
         />
       </div>
 
+      {/* Description */}
       <div className="mb-4">
         <label className="block font-semibold mb-1">Description:</label>
         <textarea
@@ -114,14 +123,12 @@ export default function WorkoutProgramForm({ user, onCreated }) {
             className="p-2 rounded border border-gray-700 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <textarea
-            type="text"
             placeholder="Notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             className="p-2 rounded border border-gray-700 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <textarea
-            type="text"
             placeholder="Link"
             value={link}
             onChange={(e) => setLink(e.target.value)}
@@ -140,7 +147,10 @@ export default function WorkoutProgramForm({ user, onCreated }) {
           <div className="max-h-48 overflow-y-auto border border-gray-700 rounded p-2 custom-scrollbar">
             <ul className="space-y-1">
               {exercises.map((ex, idx) => (
-                <li key={idx} className="flex justify-between items-center bg-gray-800 p-2 rounded">
+                <li
+                  key={idx}
+                  className="flex justify-between items-center bg-gray-800 p-2 rounded"
+                >
                   <span>{`${ex.name} - Sets: ${ex.sets}, Reps: ${ex.reps}${ex.notes ? `, Notes: ${ex.notes}` : ""}`}</span>
                   <button
                     type="button"
@@ -160,26 +170,8 @@ export default function WorkoutProgramForm({ user, onCreated }) {
         type="submit"
         className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-semibold"
       >
-        Add Program
+        {isEdit ? "Save Changes" : "Add Program"}
       </button>
-
-      {/* Scrollbar Styling */}
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #1f2937;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #facc15;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #eab308;
-        }
-      `}</style>
     </form>
   );
 }

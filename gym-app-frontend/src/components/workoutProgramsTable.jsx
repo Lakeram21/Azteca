@@ -1,66 +1,77 @@
-// components/WorkoutProgramsTable.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { getWorkouts } from "../firebaseWorkouts";
+import WorkoutProgramForm from "./WorkoutProgramForm";
+import { getAllUsers } from "../firebaseUsers"; // assuming you have this helper
+import { assignWorkout } from "../firebaseWorkouts";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
+
 export default function WorkoutProgramsTable({ user }) {
   const [programs, setPrograms] = useState([]);
   const [clients, setClients] = useState([]);
   const [selectedProgram, setSelectedProgram] = useState(null);
-  const [selectedClients, setSelectedClients] = useState([]);
+  const [assignClients, setAssignClients] = useState([]);
+  const [editWorkout, setEditWorkout] = useState(null);
+
+  const fetchPrograms = async () => {
+    try {
+      const data = await getWorkouts(user.id);
+      setPrograms(data);
+    } catch (err) {
+      console.error("Failed to fetch programs", err);
+    }
+  };
+
+  const fetchClients = async () => {
+    try {
+      const users = await getAllUsers();
+      setClients(users);
+    } catch (err) {
+      console.error("Failed to fetch clients", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchPrograms = async () => {
-      try {
-        const res = await axios.get(API_URL+"/workout-programs");
-        setPrograms(res.data);
-      } catch (err) {
-        console.error("Failed to fetch programs", err);
-      }
-    };
-
-    const fetchClients = async () => {
-      try {
-        const res = await axios.get(API_URL+"/users");
-        setClients(res.data);
-      } catch (err) {
-        console.error("Failed to fetch clients", err);
-      }
-    };
-
     fetchPrograms();
     fetchClients();
   }, []);
 
   const handleAssignClick = (program) => {
     setSelectedProgram(program);
-    setSelectedClients([]); // reset selection
-  };
-
-  const handleAssignSubmit = async () => {
-    if (selectedClients.length === 0) return alert("Select at least one client!");
-    try {
-      await axios.post(API_URL+"/assign-program", {
-        programId: selectedProgram.id,
-        clientId: selectedClients[0],
-        createdBy: user.id,
-      });
-      alert("Program assigned successfully!");
-      setSelectedProgram(null);
-    } catch (err) {
-      console.error("Failed to assign program", err);
-    }
+    setAssignClients([]);
   };
 
   const toggleClientSelection = (id) => {
-    setSelectedClients((prev) =>
+    setAssignClients((prev) =>
       prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
     );
   };
 
+  const handleAssignSubmit = async () => {
+  if (assignClients.length === 0) return alert("Select at least one client!");
+  try {
+    await assignWorkout(selectedProgram.id, assignClients, user.id);
+    alert(`Assigned "${selectedProgram.name}" to clients: ${assignClients.join(", ")}`);
+    setSelectedProgram(null);
+  } catch (err) {
+    console.error("Failed to assign program", err);
+  }
+};
+
   return (
     <div className="bg-gray-900 text-white shadow-lg rounded-2xl p-6 mt-6">
       <h2 className="text-2xl font-extrabold mb-4 text-yellow-400">Current Programs</h2>
+
+      {/* Render Edit Form */}
+      {editWorkout && (
+        <WorkoutProgramForm
+          user={user}
+          workoutToEdit={editWorkout}
+          onCreated={(updatedWorkout) => {
+            fetchPrograms();
+            setEditWorkout(null);
+          }}
+        />
+      )}
 
       {programs.length === 0 ? (
         <p className="text-gray-400">No programs found.</p>
@@ -73,15 +84,21 @@ export default function WorkoutProgramsTable({ user }) {
             >
               {/* Buttons top-right */}
               <div className="absolute top-4 right-4 flex gap-2">
-                <button className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded font-semibold text-sm">
+                <button
+                  onClick={() => setEditWorkout(p)}
+                  className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded font-semibold text-sm"
+                >
                   Edit
                 </button>
-                <button className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded font-semibold text-sm">
+                <button
+                  onClick={() => console.log("Delete TODO")}
+                  className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded font-semibold text-sm"
+                >
                   Delete
                 </button>
                 <button
-                  className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded font-semibold text-sm"
                   onClick={() => handleAssignClick(p)}
+                  className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded font-semibold text-sm"
                 >
                   Assign
                 </button>
@@ -93,19 +110,23 @@ export default function WorkoutProgramsTable({ user }) {
               <div className="mt-3">
                 <span className="font-semibold text-yellow-400">Exercises:</span>
                 <ul className="ml-4 mt-1 list-disc text-gray-200">
-                  {p.exercises.map((e) => (
-                    <>
-                    <li key={e.id}>
-                      {e.name} — {e.sets} sets of {e.reps} reps {e.link && <p className="text-gray-400 text-sm">Link: <a
-                        href={e.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-yellow-400 underline hover:text-yellow-300"
-                      >
-                        {e.link}
-                      </a></p>}
+                  {p.exercises.map((e, idx) => (
+                    <li key={idx}>
+                      {e.name} — {e.sets} sets of {e.reps} reps
+                      {e.link && (
+                        <p className="text-gray-400 text-sm">
+            Link:{" "}
+            <a
+              href={e.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-yellow-400 underline hover:text-yellow-300"
+            >
+              {e.link.length > 40 ? e.link.slice(0, 37) + "..." : e.link}
+            </a>
+          </p>
+                      )}
                     </li>
-                    </>
                   ))}
                 </ul>
               </div>
@@ -126,7 +147,7 @@ export default function WorkoutProgramsTable({ user }) {
                 <label key={c.id} className="flex items-center gap-2 mb-1">
                   <input
                     type="checkbox"
-                    checked={selectedClients.includes(c.id)}
+                    checked={assignClients.includes(c.id)}
                     onChange={() => toggleClientSelection(c.id)}
                     className="accent-yellow-400"
                   />
@@ -154,20 +175,10 @@ export default function WorkoutProgramsTable({ user }) {
 
       {/* Custom Scrollbar */}
       <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #1f2937;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #facc15;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #eab308;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #facc15; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #eab308; }
       `}</style>
     </div>
   );
