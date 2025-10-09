@@ -73,8 +73,8 @@ export default function ClientPaymentsTable({ user }) {
   }, [user.uid]);
 
   return (
-    <div className="bg-gray-800 p-6 border-yellow-200">
-      <div className="space-y-4">
+    <div className="bg-gray-800 p-4 sm:p-6 border-yellow-200">
+      <div className="space-y-6">
         {activePayments.length > 0 ? (
           activePayments.map((p) => {
             const qrData = JSON.stringify({
@@ -85,9 +85,10 @@ export default function ClientPaymentsTable({ user }) {
             return (
               <div
                 key={p.id}
-                className="bg-green-900 bg-opacity-30 border border-green-400 rounded-xl p-4 shadow hover:shadow-lg transition flex flex-col md:flex-row md:justify-between md:items-center"
+                className="bg-green-900 bg-opacity-30 border border-green-400 rounded-xl p-4 shadow hover:shadow-lg transition flex flex-col md:flex-row md:justify-between md:items-center gap-4"
               >
-                <div className="mb-4 md:mb-0">
+                {/* Payment Info */}
+                <div className="flex-1">
                   <h3 className="text-lg font-semibold text-green-200 mb-2">
                     Current Valid Payment
                   </h3>
@@ -100,16 +101,37 @@ export default function ClientPaymentsTable({ user }) {
                   <p><span className="font-semibold">End Date:</span> {getEndDate(p).toISOString().split("T")[0]}</p>
                 </div>
 
-                <div className="bg-white p-4 rounded-xl inline-block">
-                  <QRCode
-                    value={qrData}
-                    size={350}        // larger QR for easier scanning
-                    ecLevel="H"       // high error correction
-                    bgColor="#ffffff"
-                    fgColor="#000000"
-                  />
-                  <p className="text-xs text-gray-800 text-center mt-1">Scan to verify</p>
+                {/* QR Code Container */}
+                <div className="flex justify-center items-center w-full md:w-auto">
+                  {/* Desktop Large */}
+                  <div className="hidden md:flex justify-center items-center bg-white p-4 rounded-xl max-w-[350px] w-full">
+                    <QRCode
+                      value={qrData}
+                      size={350}
+                      ecLevel="H"
+                      bgColor="#ffffff"
+                      fgColor="#000000"
+                      quietZone={10}
+                      logoImage={null}
+                    />
+                  </div>
+
+                  {/* Mobile Small */}
+                  <div className="flex md:hidden justify-center items-center bg-white p-4 rounded-xl max-w-[220px] w-full">
+                    <QRCode
+                      value={qrData}
+                      size={220}
+                      ecLevel="H"
+                      bgColor="#ffffff"
+                      fgColor="#000000"
+                      quietZone={10}
+                      logoImage={null}
+                    />
+                  </div>
                 </div>
+
+                <p className="text-xs text-gray-800 text-center mt-2 md:hidden">Scan to verify</p>
+                <p className="text-xs text-gray-800 text-center mt-2 hidden md:block">Scan to verify</p>
               </div>
             );
           })
