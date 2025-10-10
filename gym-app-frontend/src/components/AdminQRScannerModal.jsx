@@ -123,35 +123,75 @@ export default function AdminQRScannerModal({ onClose }) {
           Scan QR
         </button>
 
-        {scanData && (
+        {/* {scanData && (
           <div className="mt-4 bg-gray-700 p-3 rounded-xl">
             <h3 className="font-bold mb-2">Scanned Data:</h3>
             <pre className="text-xs">{JSON.stringify(scanData, null, 2)}</pre>
           </div>
-        )}
+        )} */}
 
-        {verificationResult && (
-          <div
-            className={`mt-4 p-3 rounded-xl ${
-              verificationResult.valid ? "bg-green-600" : "bg-red-600"
-            }`}
-          >
-            <h3 className="font-bold mb-2 text-center">
-              {verificationResult.valid ? "Payment Verified ✅" : "Payment Invalid ❌"}
-            </h3>
-            {verificationResult.details && (
-              <pre className="text-xs">
-                {JSON.stringify(verificationResult.details, null, 2)}
-              </pre>
-            )}
-            {verificationResult.backendPayment && (
-              <pre className="text-xs mt-2">
-                Backend Payment: {JSON.stringify(verificationResult.backendPayment, null, 2)}
-              </pre>
-            )}
-            {verificationResult.error && <p>{verificationResult.error}</p>}
-          </div>
-        )}
+       {verificationResult && verificationResult.backendPayment && (
+  <div
+    className={`mt-4 p-4 rounded-xl shadow-lg ${
+      verificationResult.valid ? "bg-green-600" : "bg-red-600"
+    }`}
+  >
+    <h3 className="text-center font-bold text-lg mb-3">
+      {verificationResult.valid ? "✅ Payment Verified" : "❌ Payment Invalid"}
+    </h3>
+
+    <div className="bg-gray-800 p-3 rounded space-y-2">
+      <div>
+        <span className="font-semibold">Client Name:</span>{" "}
+        {verificationResult.backendPayment.client?.name || "-"}
+      </div>
+      <div>
+        <span className="font-semibold">Client Email:</span>{" "}
+        {verificationResult.backendPayment.client?.email || "-"}
+      </div>
+      <div>
+        <span className="font-semibold">Payment Amount:</span> $
+        {verificationResult.backendPayment.amount || "-"}
+      </div>
+      <div>
+        <span className="font-semibold">Start Date:</span>{" "}
+        {verificationResult.backendPayment.date || "-"}
+      </div>
+      <div>
+        <span className="font-semibold">End Date:</span>{" "}
+        {new Date(
+          (() => {
+            const p = verificationResult.backendPayment;
+            const today = new Date(p.date);
+            switch (p.type) {
+              case "per day":
+                today.setDate(today.getDate() + 1);
+                break;
+              case "per week":
+                today.setDate(today.getDate() + 7);
+                break;
+              case "per month":
+                today.setMonth(today.getMonth() + 1);
+                break;
+              case "per several":
+                if (p.selectedDates?.length) {
+                  const dates = p.selectedDates.map(d => new Date(d));
+                  return Math.max(...dates.map(d => d.getTime()));
+                }
+                break;
+            }
+            return today;
+          })()
+        ).toISOString().split("T")[0]}
+      </div>
+      <div>
+        <span className="font-semibold">Status:</span>{" "}
+        {verificationResult.valid ? "✅ Valid" : "❌ Expired"}
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );
