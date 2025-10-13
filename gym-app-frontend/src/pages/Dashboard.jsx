@@ -7,9 +7,12 @@ import ClientsTable from "../components/ClientsTable.jsx";
 import WorkoutProgramsTable from "../components/workoutProgramsTable.jsx";
 import WorkoutProgramForm from "../components/WorkoutProgramForm.jsx";
 import AdminQRScannerModal from "../components/AdminQRScannerModal.jsx";
+import { useLanguage } from "../context/LanguageContext"; // ✅ import
 
 const Dashboard = ({ user }) => {
   const [activeSection, setActiveSection] = useState(null);
+  const { language } = useLanguage(); // ✅ get language
+  const t = (en, es) => (language === "en" ? en : es); // ✅ helper
 
   const toggleSection = (section) =>
     setActiveSection((prev) => (prev === section ? null : section));
@@ -25,12 +28,20 @@ const Dashboard = ({ user }) => {
     <div className="min-h-screen bg-gray-900 text-white">
       <header className="text-center p-6">
         <h1 className="text-4xl font-bold text-yellow-400">
-          {user.role === "admin" ? "Admin Dashboard" : `Welcome, ${user.name}`}
+          {user.role === "admin"
+            ? t("Admin Dashboard", "Panel de Administración")
+            : t(`Welcome, ${user.name}`, `Bienvenido, ${user.name}`)}
         </h1>
         <p className="text-gray-300 mt-2">
           {user.role === "admin"
-            ? "Manage clients, payments, and workout programs efficiently"
-            : "Track your payments and workout programs here"}
+            ? t(
+                "Manage clients, payments, and workout programs efficiently",
+                "Administra clientes, pagos y programas de entrenamiento eficientemente"
+              )
+            : t(
+                "Track your payments and workout programs here",
+                "Sigue tus pagos y programas de entrenamiento aquí"
+              )}
         </p>
       </header>
 
@@ -39,11 +50,11 @@ const Dashboard = ({ user }) => {
           {/* Tabs */}
           <div className="flex flex-wrap gap-2 justify-center mb-6">
             {[
-              { key: "payment", label: "Add Payment" },
-              { key: "paymentsTable", label: "Show Payments" },
-              { key: "clientsTable", label: "View Clients" },
-              { key: "workoutPrograms", label: "Workout Programs" },
-              { key: "verifyPayment", label: "Verify Payment" },
+              { key: "payment", label: t("Add Payment", "Agregar Pago") },
+              { key: "paymentsTable", label: t("Show Payments", "Mostrar Pagos") },
+              { key: "clientsTable", label: t("View Clients", "Ver Clientes") },
+              { key: "workoutPrograms", label: t("Workout Programs", "Programas de Entrenamiento") },
+              { key: "verifyPayment", label: t("Verify Payment", "Verificar Pago") },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -73,14 +84,14 @@ const Dashboard = ({ user }) => {
         </main>
       ) : (
         <main className="p-4 space-y-6">
-          {/* Client view: stack on mobile, side by side on desktop */}
+          {/* Client view */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-gray-800 p-4 rounded-xl shadow">
-              <h2 className="text-xl font-semibold mb-2">Your Payments</h2>
+              <h2 className="text-xl font-semibold mb-2">{t("Your Payments", "Tus Pagos")}</h2>
               <ClientPaymentsTable user={user} />
             </div>
             <div className="bg-gray-800 p-4 rounded-xl shadow">
-              <h2 className="text-xl font-semibold mb-2">Workout Programs</h2>
+              <h2 className="text-xl font-semibold mb-2">{t("Workout Programs", "Programas de Entrenamiento")}</h2>
               <ClientWorkoutProgramsTable user={user} />
             </div>
           </div>

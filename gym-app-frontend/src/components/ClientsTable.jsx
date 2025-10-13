@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import EditClientForm from "./EditClientForm";
 import { getAllUsers } from "../firebaseUsers";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
+import { useLanguage } from "../context/LanguageContext";
 
 export default function ClientsTable() {
+  const { language } = useLanguage();
+  const t = (en, es) => (language === "en" ? en : es);
+
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
 
@@ -15,11 +16,11 @@ export default function ClientsTable() {
         const allUsers = await getAllUsers();
         setClients(allUsers);
       } catch (err) {
-        console.error("Failed to fetch users", err);
+        console.error(t("Failed to fetch users", "Error al obtener usuarios"), err);
       }
     };
     fetchUsers();
-  }, []);
+  }, [language]); // optionally re-fetch if language changes
 
   return (
     <div className="bg-gray-900 text-white shadow-2xl rounded-2xl p-6 mt-6">
@@ -31,16 +32,16 @@ export default function ClientsTable() {
       ) : (
         <>
           <h2 className="text-2xl font-extrabold mb-5 text-yellow-400 text-center">
-            Clients
+            {t("Clients", "Clientes")}
           </h2>
 
           <div className="overflow-x-auto rounded-lg">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-800 text-yellow-300 uppercase text-sm tracking-wider">
-                  <th className="p-3 text-left">Name</th>
-                  <th className="p-3 text-left">Email</th>
-                  <th className="p-3 text-left">Actions</th>
+                  <th className="p-3 text-left">{t("Name", "Nombre")}</th>
+                  <th className="p-3 text-left">{t("Email", "Correo")}</th>
+                  <th className="p-3 text-left">{t("Actions", "Acciones")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -57,7 +58,7 @@ export default function ClientsTable() {
                           className="bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-2 rounded-full font-bold transition transform hover:scale-105"
                           onClick={() => setSelectedClient(client)}
                         >
-                          View / Edit
+                          {t("View / Edit", "Ver / Editar")}
                         </button>
                       </td>
                     </tr>
@@ -65,7 +66,7 @@ export default function ClientsTable() {
                 ) : (
                   <tr>
                     <td colSpan="3" className="text-center py-4 text-gray-400">
-                      No clients found
+                      {t("No clients found", "No se encontraron clientes")}
                     </td>
                   </tr>
                 )}

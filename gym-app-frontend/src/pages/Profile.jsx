@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useLanguage } from "../context/LanguageContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 export default function Profile({ user, setUser }) {
+  const { language } = useLanguage();
+  const t = (en, es) => (language === "en" ? en : es);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -32,11 +37,11 @@ export default function Profile({ user, setUser }) {
     setLoading(true);
     try {
       const res = await axios.put(`${API_URL}/users/${user.id}`, formData);
-      setMessage({ text: "Profile updated successfully!", type: "success" });
+      setMessage({ text: t("Profile updated successfully!", "¡Perfil actualizado con éxito!"), type: "success" });
       setUser(res.data);
     } catch (err) {
       console.error(err);
-      setMessage({ text: "Failed to update profile.", type: "error" });
+      setMessage({ text: t("Failed to update profile.", "Error al actualizar el perfil."), type: "error" });
     } finally {
       setLoading(false);
     }
@@ -45,7 +50,7 @@ export default function Profile({ user, setUser }) {
   if (!user) {
     return (
       <div className="text-center text-white mt-10">
-        Please log in to see your profile.
+        {t("Please log in to see your profile.", "Por favor, inicia sesión para ver tu perfil.")}
       </div>
     );
   }
@@ -61,7 +66,9 @@ export default function Profile({ user, setUser }) {
       }}
     >
       <div className="max-w-3xl w-full p-6 bg-black/80 shadow-xl rounded-2xl border-l-4 border-yellow-400">
-        <h2 className="text-3xl font-bold text-yellow-400 mb-6 text-center">Your Profile</h2>
+        <h2 className="text-3xl font-bold text-yellow-400 mb-6 text-center">
+          {t("Your Profile", "Tu Perfil")}
+        </h2>
 
         {message.text && (
           <div
@@ -75,7 +82,7 @@ export default function Profile({ user, setUser }) {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block mb-1 font-semibold text-gray-200">Name</label>
+            <label className="block mb-1 font-semibold text-gray-200">{t("Name", "Nombre")}</label>
             <input
               type="text"
               name="name"
@@ -87,7 +94,9 @@ export default function Profile({ user, setUser }) {
           </div>
 
           <div>
-            <label className="block mb-1 font-semibold text-gray-200">Email (cannot change)</label>
+            <label className="block mb-1 font-semibold text-gray-200">
+              {t("Email (cannot change)", "Correo electrónico (no se puede cambiar)")}
+            </label>
             <input
               type="email"
               name="email"
@@ -98,7 +107,7 @@ export default function Profile({ user, setUser }) {
           </div>
 
           <div>
-            <label className="block mb-1 font-semibold text-gray-200">Phone</label>
+            <label className="block mb-1 font-semibold text-gray-200">{t("Phone", "Teléfono")}</label>
             <input
               type="text"
               name="phone"
@@ -110,7 +119,7 @@ export default function Profile({ user, setUser }) {
 
           <div>
             <label className="block mb-1 font-semibold text-gray-200">
-              Password (leave blank to keep)
+              {t("Password (leave blank to keep)", "Contraseña (deja en blanco para mantenerla)")}
             </label>
             <input
               type="password"
@@ -128,7 +137,7 @@ export default function Profile({ user, setUser }) {
               loading ? "bg-gray-600 cursor-not-allowed" : "bg-yellow-400 hover:bg-yellow-500"
             } transition-all duration-200`}
           >
-            {loading ? "Updating..." : "Update Profile"}
+            {loading ? t("Updating...", "Actualizando...") : t("Update Profile", "Actualizar Perfil")}
           </button>
         </form>
       </div>

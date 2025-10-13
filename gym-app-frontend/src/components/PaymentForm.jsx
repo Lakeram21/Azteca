@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { getAllUsers } from "../firebaseUsers";
 import { addPayment } from "../firebasePayments";
+import { useLanguage } from "../context/LanguageContext";
 
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export default function PaymentForm({ user, onPaymentRecorded }) {
+  const { language } = useLanguage();
+  const t = (en, es) => (language === "en" ? en : es);
+
   const [paymentData, setPaymentData] = useState({
     clientId: "",
     type: "per day",
@@ -24,16 +28,14 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
         const allUsers = await getAllUsers();
         setUsers(allUsers);
       } catch (err) {
-        console.error("Failed to fetch users", err);
+        console.error(t("Failed to fetch users", "Error al obtener usuarios"), err);
       }
     };
     fetchUsers();
   }, []);
 
-  // Handle form changes
   const handleChange = (e) => {
     const { name, value, checked } = e.target;
-
     if (name === "selectedDays") {
       const newSelected = checked
         ? [...paymentData.selectedDays, value]
@@ -48,7 +50,7 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
     e.preventDefault();
     try {
       if (!paymentData.clientId) {
-        alert("Please select a client");
+        alert(t("Please select a client", "Por favor seleccione un cliente"));
         return;
       }
 
@@ -62,7 +64,7 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
 
       if (paymentData.type === "per several") {
         if (!paymentData.selectedDays.length) {
-          alert("Select at least one day for multiple day payment");
+          alert(t("Select at least one day for multiple day payment", "Seleccione al menos un día para pago múltiple"));
           return;
         }
 
@@ -80,7 +82,7 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
       }
 
       await addPayment(payload);
-      setMessage("✅ Payment recorded successfully!");
+      setMessage(t("✅ Payment recorded successfully!", "✅ ¡Pago registrado correctamente!"));
       setPaymentData({
         clientId: "",
         type: "per day",
@@ -89,15 +91,14 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
         selectedDays: []
       });
 
-      if (onPaymentRecorded) onPaymentRecorded(payload); // callback to update parent Dashboard
+      if (onPaymentRecorded) onPaymentRecorded(payload);
 
     } catch (err) {
       console.error(err);
-      setMessage("❌ Failed to record payment");
+      setMessage(t("❌ Failed to record payment", "❌ Error al registrar pago"));
     }
   };
 
-  // Filter users for search
   const filteredUsers = users.filter(
     (u) =>
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -106,7 +107,7 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
 
   return (
     <div className="bg-gray-800/80 backdrop-blur-md shadow-xl rounded-2xl p-6 space-y-4 border-l-4 border-gray-500">
-      <h2 className="text-2xl font-bold text-yellow-400 mb-4">Add Payment</h2>
+      <h2 className="text-2xl font-bold text-yellow-400 mb-4">{t("Add Payment", "Agregar Pago")}</h2>
 
       {message && (
         <p className={`font-semibold ${message.startsWith("✅") ? "text-green-400" : "text-red-400"}`}>
@@ -119,7 +120,7 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
         <div className="space-y-2">
           <input
             type="text"
-            placeholder="Search client by name or email..."
+            placeholder={t("Search client by name or email...", "Buscar cliente por nombre o correo...")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
@@ -131,7 +132,7 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
             required
             className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
           >
-            <option value="">Select a client</option>
+            <option value="">{t("Select a client", "Seleccione un cliente")}</option>
             {filteredUsers.map((u) => (
               <option key={u.id} value={u.id}>
                 {u.name} ({u.email})
@@ -147,17 +148,17 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
           onChange={handleChange}
           className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
         >
-          <option value="per day">Per Day</option>
-          <option value="per week">Per Week</option>
-          <option value="per month">Per Month</option>
-          <option value="per several">Several Days</option>
+          <option value="per day">{t("Per Day", "Por Día")}</option>
+          <option value="per week">{t("Per Week", "Por Semana")}</option>
+          <option value="per month">{t("Per Month", "Por Mes")}</option>
+          <option value="per several">{t("Several Days", "Varios Días")}</option>
         </select>
 
         {/* Amount */}
         <input
           type="number"
           name="amount"
-          placeholder="Amount"
+          placeholder={t("Amount", "Monto")}
           value={paymentData.amount}
           onChange={handleChange}
           required
@@ -177,7 +178,7 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
         {/* Multiple days */}
         {paymentData.type === "per several" && (
           <div className="space-y-2">
-            <p className="font-semibold text-white">Select days:</p>
+            <p className="font-semibold text-white">{t("Select days:", "Seleccione días:")}</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {WEEKDAYS.map((day) => (
                 <label key={day} className="flex items-center space-x-2 cursor-pointer text-gray-200 hover:text-white transition">
@@ -189,7 +190,7 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
                     onChange={handleChange}
                     className="accent-yellow-400"
                   />
-                  <span>{day}</span>
+                  <span>{t(day, day)}</span>
                 </label>
               ))}
             </div>
@@ -200,7 +201,7 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
           type="submit"
           className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 rounded-xl shadow-lg transform hover:scale-105 transition duration-200"
         >
-          Record Payment
+          {t("Record Payment", "Registrar Pago")}
         </button>
       </form>
     </div>

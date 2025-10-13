@@ -1,31 +1,38 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001"
-// Workout Routines Data
 const routines = [
   {
-    title: "Push–Pull–Legs (PPL) Split",
-    description:
-      "Push Day → chest, shoulders, triceps. Pull Day → back, biceps. Legs Day → quads, hamstrings, glutes, calves.",
+    title: { en: "Push–Pull–Legs (PPL) Split", es: "División Push–Pull–Legs (PPL)" },
+    description: {
+      en: "Push Day → chest, shoulders, triceps. Pull Day → back, biceps. Legs Day → quads, hamstrings, glutes, calves.",
+      es: "Día Push → pecho, hombros, tríceps. Día Pull → espalda, bíceps. Día Legs → cuádriceps, isquiotibiales, glúteos, pantorrillas.",
+    },
     image: "/public/dashboard_background.jpg",
   },
   {
-    title: "Full Body Workout",
-    description:
-      "Each session trains all major muscle groups, often 2–4 days per week.",
+    title: { en: "Full Body Workout", es: "Entrenamiento de Cuerpo Completo" },
+    description: {
+      en: "Each session trains all major muscle groups, often 2–4 days per week.",
+      es: "Cada sesión entrena todos los grupos musculares principales, a menudo 2–4 días por semana.",
+    },
     image: "/public/dashboard_background2.jpg",
   },
   {
-    title: "High-Intensity Interval Training (HIIT)",
-    description:
-      "Alternates short bursts of intense effort with recovery periods. Usually 15–30 minutes per session.",
+    title: { en: "High-Intensity Interval Training (HIIT)", es: "Entrenamiento Interválico de Alta Intensidad (HIIT)" },
+    description: {
+      en: "Alternates short bursts of intense effort with recovery periods. Usually 15–30 minutes per session.",
+      es: "Alterna ráfagas cortas de esfuerzo intenso con periodos de recuperación. Normalmente 15–30 minutos por sesión.",
+    },
     image: "/public/profile_background.jpg",
   },
 ];
 
 function Landing() {
   const [currentRoutine, setCurrentRoutine] = useState(0);
+  const { language } = useLanguage();
+  const t = (en, es) => (language === "en" ? en : es);
 
   return (
     <div className="min-h-screen flex flex-col text-slate-100 bg-gradient-to-b from-indigo-950 via-indigo-900 to-indigo-950">
@@ -39,14 +46,8 @@ function Landing() {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/90 via-indigo-800/70 to-indigo-950/90" />
-
-        {/* Wave Divider */}
         <div className="absolute bottom-0 w-full">
-          <svg
-            viewBox="0 0 1440 320"
-            className="w-full h-32"
-            preserveAspectRatio="none"
-          >
+          <svg viewBox="0 0 1440 320" className="w-full h-32" preserveAspectRatio="none">
             <path
               fill="#f1f5f9"
               d="M0,160L80,154.7C160,149,320,139,480,128C640,117,800,107,960,122.7C1120,139,1280,181,1360,202.7L1440,224V320H0Z"
@@ -54,27 +55,28 @@ function Landing() {
           </svg>
         </div>
 
-        {/* Hero Content */}
         <div className="relative z-10 max-w-3xl">
           <h1 className="text-5xl md:text-6xl font-extrabold text-amber-300 drop-shadow-lg">
-            Train Smarter. Get Stronger.
+            {t("Train Smarter. Get Stronger.", "Entrena Inteligente. Sé Más Fuerte.")}
           </h1>
           <p className="mt-6 text-lg md:text-xl text-slate-200">
-            Unlock personalized programs, track your workouts, and enjoy
-            community support that keeps you motivated.
+            {t(
+              "Unlock personalized programs, track your workouts, and enjoy community support that keeps you motivated.",
+              "Desbloquea programas personalizados, sigue tus entrenamientos y disfruta del apoyo de la comunidad que te mantiene motivado."
+            )}
           </p>
           <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
             <Link
               to="/login"
               className="bg-amber-300 text-indigo-950 font-bold px-6 py-3 rounded-xl shadow-lg hover:scale-105 transform transition"
             >
-              Get Started
+              {t("Get Started", "Comenzar")}
             </Link>
             <a
               href="#pricing"
               className="bg-transparent border-2 border-amber-300 text-amber-300 font-bold px-6 py-3 rounded-xl shadow-lg hover:bg-amber-200/20 transition"
             >
-              View Plans
+              {t("View Plans", "Ver Planes")}
             </a>
           </div>
         </div>
@@ -83,30 +85,35 @@ function Landing() {
       {/* Features Section */}
       <section className="py-20 px-6 bg-indigo-900 text-slate-100">
         <div className="max-w-6xl mx-auto text-center mb-12">
-          <h2 className="text-4xl font-bold text-amber-300 mb-4">Why Choose Us?</h2>
+          <h2 className="text-4xl font-bold text-amber-300 mb-4">{t("Why Choose Us?", "¿Por Qué Elegirnos?")}</h2>
           <p className="text-slate-300 text-lg">
-            We combine technology, expertise, and community to help you reach
-            your fitness goals faster.
+            {t(
+              "We combine technology, expertise, and community to help you reach your fitness goals faster.",
+              "Combinamos tecnología, experiencia y comunidad para ayudarte a alcanzar tus objetivos de fitness más rápido."
+            )}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           <div className="bg-indigo-800/80 p-6 rounded-2xl shadow-xl border-l-4 border-amber-300">
-            <h3 className="text-2xl font-semibold mb-3">Track your Progress</h3>
+            <h3 className="text-2xl font-semibold mb-3">{t("Track your Progress", "Sigue tu Progreso")}</h3>
             <p className="text-slate-300">
-              Train and track your progress with our app.
+              {t("Train and track your progress with our app.", "Entrena y sigue tu progreso con nuestra app.")}
             </p>
           </div>
           <div className="bg-indigo-800/80 p-6 rounded-2xl shadow-xl border-l-4 border-amber-300">
-            <h3 className="text-2xl font-semibold mb-3">Personalized Programs</h3>
+            <h3 className="text-2xl font-semibold mb-3">{t("Personalized Programs", "Programas Personalizados")}</h3>
             <p className="text-slate-300">
-              Tailored workout plans that adapt to your fitness level and goals.
+              {t(
+                "Tailored workout plans that adapt to your fitness level and goals.",
+                "Planes de entrenamiento adaptados a tu nivel de fitness y objetivos."
+              )}
             </p>
           </div>
           <div className="bg-indigo-800/80 p-6 rounded-2xl shadow-xl border-l-4 border-amber-300">
-            <h3 className="text-2xl font-semibold mb-3">Community Support</h3>
+            <h3 className="text-2xl font-semibold mb-3">{t("Community Support", "Apoyo Comunitario")}</h3>
             <p className="text-slate-300">
-              Stay motivated with trainers and peers cheering you on.
+              {t("Stay motivated with trainers and peers cheering you on.", "Mantente motivado con entrenadores y compañeros animándote.")}
             </p>
           </div>
         </div>
@@ -115,61 +122,57 @@ function Landing() {
       {/* Pricing Section */}
       <section id="pricing" className="py-20 px-6 bg-slate-100 text-gray-900">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-indigo-800 mb-6">
-            Membership Plans
-          </h2>
-          <p className="text-slate-600 mb-12">
-            Flexible pricing that adapts to your lifestyle.
-          </p>
+          <h2 className="text-4xl font-bold text-indigo-800 mb-6">{t("Membership Plans", "Planes de Membresía")}</h2>
+          <p className="text-slate-600 mb-12">{t("Flexible pricing that adapts to your lifestyle.", "Precios flexibles que se adaptan a tu estilo de vida.")}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-              <h3 className="text-2xl font-semibold mb-4">Basic</h3>
+              <h3 className="text-2xl font-semibold mb-4">{t("Basic", "Básico")}</h3>
               <p className="text-4xl font-bold text-amber-400 mb-6">$20/mo</p>
               <ul className="text-slate-600 space-y-2 mb-6">
-                <li>✅ Gym Access</li>
-                <li>❌ Personal Training</li>
-                <li>❌ No Workout Tracking</li>
+                <li>✅ {t("Gym Access", "Acceso al Gimnasio")}</li>
+                <li>❌ {t("Personal Training", "Entrenamiento Personal")}</li>
+                <li>❌ {t("No Workout Tracking", "Sin Seguimiento de Entrenamiento")}</li>
               </ul>
               <Link
                 to="/login"
                 className="block bg-amber-300 text-indigo-950 font-bold py-2 rounded-lg hover:scale-105 transition"
               >
-                Join Now
+                {t("Join Now", "Unirse")}
               </Link>
             </div>
 
             <div className="bg-amber-300 text-indigo-950 p-8 rounded-2xl shadow-xl transform scale-105">
-              <h3 className="text-2xl font-semibold mb-4">Standard</h3>
+              <h3 className="text-2xl font-semibold mb-4">{t("Standard", "Estándar")}</h3>
               <p className="text-4xl font-bold mb-6">$35/mo</p>
               <ul className="space-y-2 mb-6">
-                <li>✅ Gym Access</li>
-                <li>✅ Workout Plans</li>
-                <li>✅ Workout Tracking</li>
+                <li>✅ {t("Gym Access", "Acceso al Gimnasio")}</li>
+                <li>✅ {t("Workout Plans", "Planes de Entrenamiento")}</li>
+                <li>✅ {t("Workout Tracking", "Seguimiento de Entrenamiento")}</li>
               </ul>
               <Link
                 to="/login"
                 className="block bg-indigo-900 text-amber-300 font-bold py-2 rounded-lg hover:scale-105 transition"
               >
-                Join Now
+                {t("Join Now", "Unirse")}
               </Link>
             </div>
 
             <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-              <h3 className="text-2xl font-semibold mb-4">Premium</h3>
+              <h3 className="text-2xl font-semibold mb-4">{t("Premium", "Premium")}</h3>
               <p className="text-4xl font-bold text-amber-400 mb-6">$50/mo</p>
               <ul className="text-slate-600 space-y-2 mb-6">
-                <li>✅ Gym Access</li>
-                <li>✅ Workout Plans</li>
-                <li>✅ Workout Tracking</li>
-                <li>✅ Personal Training</li>
-                <li>✅ Personal Meal Plans</li>
+                <li>✅ {t("Gym Access", "Acceso al Gimnasio")}</li>
+                <li>✅ {t("Workout Plans", "Planes de Entrenamiento")}</li>
+                <li>✅ {t("Workout Tracking", "Seguimiento de Entrenamiento")}</li>
+                <li>✅ {t("Personal Training", "Entrenamiento Personal")}</li>
+                <li>✅ {t("Personal Meal Plans", "Planes de Comida Personalizados")}</li>
               </ul>
               <Link
                 to="/login"
                 className="block bg-amber-300 text-indigo-950 font-bold py-2 rounded-lg hover:scale-105 transition"
               >
-                Join Now
+                {t("Join Now", "Unirse")}
               </Link>
             </div>
           </div>
@@ -178,33 +181,26 @@ function Landing() {
 
       {/* Workout Routines Section */}
       <section className="py-16 bg-slate-50 text-gray-900 flex flex-col items-center">
-        <h2 className="text-4xl font-bold text-indigo-700 mb-8">
-          Workout Routines
-        </h2>
+        <h2 className="text-4xl font-bold text-indigo-700 mb-8">{t("Workout Routines", "Rutinas de Entrenamiento")}</h2>
 
         <div className="relative w-full max-w-4xl overflow-hidden">
-          <div
-            className="flex transition-transform duration-500"
-            style={{ transform: `translateX(-${currentRoutine * 100}%)` }}
-          >
+          <div className="flex transition-transform duration-500" style={{ transform: `translateX(-${currentRoutine * 100}%)` }}>
             {routines.map((routine, index) => (
               <div key={index} className="flex-none w-full px-4">
                 <div className="bg-white rounded-3xl shadow-lg p-6 flex flex-col md:flex-row gap-6 items-center">
                   <img
                     src={routine.image}
-                    alt={routine.title}
+                    alt={routine.title[language]}
                     className="w-full md:w-1/2 h-64 object-cover rounded-2xl"
                   />
                   <div className="flex flex-col gap-4 md:w-1/2">
-                    <h3 className="text-2xl font-bold text-indigo-700">
-                      {routine.title}
-                    </h3>
-                    <p className="text-slate-600">{routine.description}</p>
+                    <h3 className="text-2xl font-bold text-indigo-700">{routine.title[language]}</h3>
+                    <p className="text-slate-600">{routine.description[language]}</p>
                     <a
                       href="#"
                       className="bg-indigo-700 text-white font-bold px-6 py-2 rounded-full text-center w-fit hover:bg-indigo-600 transition"
                     >
-                      Check Out Guides
+                      {t("Check Out Guides", "Ver Guías")}
                     </a>
                   </div>
                 </div>
@@ -212,14 +208,11 @@ function Landing() {
             ))}
           </div>
 
-          {/* Dots */}
           <div className="flex justify-center mt-6 gap-3">
             {routines.map((_, idx) => (
               <button
                 key={idx}
-                className={`w-4 h-4 rounded-full transition-colors ${
-                  currentRoutine === idx ? "bg-indigo-700" : "bg-slate-400"
-                }`}
+                className={`w-4 h-4 rounded-full transition-colors ${currentRoutine === idx ? "bg-indigo-700" : "bg-slate-400"}`}
                 onClick={() => setCurrentRoutine(idx)}
               />
             ))}

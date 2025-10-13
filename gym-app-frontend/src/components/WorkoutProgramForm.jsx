@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { createWorkout, editWorkout } from "../firebaseWorkouts";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
+  const { language } = useLanguage();
+  const t = (en, es) => (language === "en" ? en : es);
+
   const isEdit = !!workoutToEdit;
 
   const [name, setName] = useState(workoutToEdit?.name || "");
@@ -62,7 +66,7 @@ export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
         setExercises([]);
       }
     } catch (err) {
-      console.error("Failed to save workout:", err);
+      console.error(t("Failed to save workout", "Error al guardar el programa"), err);
     }
   };
 
@@ -72,12 +76,12 @@ export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
       className="bg-gray-900 text-white p-6 rounded-2xl shadow-lg mb-6"
     >
       <h2 className="text-2xl font-bold mb-4 text-yellow-400">
-        {isEdit ? "Edit Workout Program" : "New Workout Program"}
+        {isEdit ? t("Edit Workout Program", "Editar Programa de Entrenamiento") : t("New Workout Program", "Nuevo Programa de Entrenamiento")}
       </h2>
 
       {/* Program Name */}
       <div className="mb-4">
-        <label className="block font-semibold mb-1">Program Name:</label>
+        <label className="block font-semibold mb-1">{t("Program Name:", "Nombre del Programa:")}</label>
         <input
           type="text"
           value={name}
@@ -89,7 +93,7 @@ export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
 
       {/* Description */}
       <div className="mb-4">
-        <label className="block font-semibold mb-1">Description:</label>
+        <label className="block font-semibold mb-1">{t("Description:", "Descripción:")}</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -99,37 +103,37 @@ export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
 
       {/* Add Exercise */}
       <div className="mb-4">
-        <label className="block font-semibold mb-2">Add Exercise:</label>
+        <label className="block font-semibold mb-2">{t("Add Exercise:", "Agregar Ejercicio:")}</label>
         <div className="grid grid-cols-4 gap-2 mb-2">
           <input
             type="text"
-            placeholder="Exercise Name"
+            placeholder={t("Exercise Name", "Nombre del Ejercicio")}
             value={exerciseName}
             onChange={(e) => setExerciseName(e.target.value)}
             className="p-2 rounded border border-gray-700 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <input
             type="number"
-            placeholder="Sets"
+            placeholder={t("Sets", "Series")}
             value={sets}
             onChange={(e) => setSets(e.target.value)}
             className="p-2 rounded border border-gray-700 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <input
             type="number"
-            placeholder="Reps"
+            placeholder={t("Reps", "Repeticiones")}
             value={reps}
             onChange={(e) => setReps(e.target.value)}
             className="p-2 rounded border border-gray-700 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <textarea
-            placeholder="Notes"
+            placeholder={t("Notes", "Notas")}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             className="p-2 rounded border border-gray-700 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <textarea
-            placeholder="Link"
+            placeholder={t("Link", "Enlace")}
             value={link}
             onChange={(e) => setLink(e.target.value)}
             className="p-2 rounded border border-gray-700 bg-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-400"
@@ -140,7 +144,7 @@ export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
           onClick={handleAddExercise}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold mb-2"
         >
-          Add Exercise
+          {t("Add Exercise", "Agregar Ejercicio")}
         </button>
 
         {exercises.length > 0 && (
@@ -151,13 +155,13 @@ export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
                   key={idx}
                   className="flex justify-between items-center bg-gray-800 p-2 rounded"
                 >
-                  <span>{`${ex.name} - Sets: ${ex.sets}, Reps: ${ex.reps}${ex.notes ? `, Notes: ${ex.notes}` : ""}`}</span>
+                  <span>{`${ex.name} - ${t("Sets", "Series")}: ${ex.sets}, ${t("Reps", "Repeticiones")}: ${ex.reps}${ex.notes ? `, ${t("Notes", "Notas")}: ${ex.notes}` : ""}`}</span>
                   <button
                     type="button"
                     className="text-red-500 font-bold ml-2 hover:text-red-400"
                     onClick={() => handleRemoveExercise(idx)}
                   >
-                    Remove
+                    {t("Remove", "Eliminar")}
                   </button>
                 </li>
               ))}
@@ -170,7 +174,7 @@ export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
         type="submit"
         className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-semibold"
       >
-        {isEdit ? "Save Changes" : "Add Program"}
+        {isEdit ? t("Save Changes", "Guardar Cambios") : t("Add Program", "Agregar Programa")}
       </button>
     </form>
   );

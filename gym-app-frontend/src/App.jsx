@@ -4,7 +4,8 @@ import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
-import LandingPage from "./pages/Landing"; // ✅ import landing page
+import LandingPage from "./pages/Landing";
+import { LanguageProvider } from "./context/LanguageContext"; // ✅ added
 
 function ProtectedRoute({ user, children }) {
   if (!user) {
@@ -15,52 +16,42 @@ function ProtectedRoute({ user, children }) {
 
 function App() {
   const [user, setUser] = useState(() => {
-    // Load from localStorage if page refresh
     const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : null;
   });
 
-  // Keep localStorage in sync
   useEffect(() => {
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
-    }
+    if (user) localStorage.setItem("user", JSON.stringify(user));
+    else localStorage.removeItem("user");
   }, [user]);
 
   return (
-    <Router>
-      <Navbar user={user} setUser={setUser} />
-      <Routes>
-        {/* Public Landing Page */}
-        <Route path="/" element={<LandingPage />} />
-
-        {/* Auth Routes */}
-        <Route path="/login" element={<Login setUser={setUser} />} />
-
-        {/* Protected Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute user={user}>
-              <Dashboard user={user} />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute user={user}>
-              <Profile user={user} setUser={setUser} />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Catch-all → redirect to landing page */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+    <LanguageProvider>
+      <Router>
+        <Navbar user={user} setUser={setUser} />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute user={user}>
+                <Dashboard user={user} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute user={user}>
+                <Profile user={user} setUser={setUser} />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </LanguageProvider>
   );
 }
 

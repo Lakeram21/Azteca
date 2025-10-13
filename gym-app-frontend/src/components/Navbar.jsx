@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { language, toggleLanguage } = useLanguage();
 
   const handleSignOut = () => {
     setUser(null);
     localStorage.removeItem("user");
     navigate("/login");
   };
+
+  const t = (en, es) => (language === "en" ? en : es);
 
   const navLinkClasses =
     "block px-4 py-2 rounded-lg font-medium transition-colors duration-200 hover:bg-gray-700";
@@ -62,10 +66,10 @@ export default function Navbar({ user, setUser }) {
         } w-full sm:flex sm:w-auto sm:items-center sm:space-x-4 mt-3 sm:mt-0`}
       >
         <Link to="/dashboard" className={navLinkClasses}>
-          Dashboard
+          {t("Dashboard", "Panel")}
         </Link>
         <Link to="/profile" className={navLinkClasses}>
-          Profile
+          {t("Profile", "Perfil")}
         </Link>
 
         {user ? (
@@ -73,16 +77,24 @@ export default function Navbar({ user, setUser }) {
             onClick={handleSignOut}
             className={`${buttonClasses} bg-red-600 hover:bg-red-700 text-white mt-2 sm:mt-0`}
           >
-            Sign Out
+            {t("Sign Out", "Cerrar Sesión")}
           </button>
         ) : (
           <Link
             to="/login"
             className={`${buttonClasses} bg-blue-600 hover:bg-blue-700 text-white mt-2 sm:mt-0`}
           >
-            Login
+            {t("Login", "Iniciar Sesión")}
           </Link>
         )}
+
+        {/* 🌐 Language Toggle */}
+        <button
+          onClick={toggleLanguage}
+          className="ml-4 bg-yellow-500 text-gray-900 px-3 py-1 rounded-lg font-bold"
+        >
+          {language === "en" ? "ES" : "EN"}
+        </button>
       </div>
     </nav>
   );

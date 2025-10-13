@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { editUser } from "../firebaseUsers"; // make sure this points to your firebaseUsers.js
+import { editUser } from "../firebaseUsers"; 
+import { useLanguage } from "../context/LanguageContext";
 
 export default function EditClientForm({ client, onClose }) {
+  const { language } = useLanguage();
+  const t = (en, es) => (language === "en" ? en : es);
+
   const [formData, setFormData] = useState({ ...client });
   const [message, setMessage] = useState("");
 
@@ -12,14 +16,12 @@ export default function EditClientForm({ client, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Call Firebase edit function
       await editUser(client.id, formData);
-
-      setMessage("Client updated successfully!");
+      setMessage(t("Client updated successfully!", "¡Cliente actualizado correctamente!"));
       setTimeout(onClose, 1000); // Auto-close after 1 second
     } catch (err) {
-      console.error("Failed to update client", err);
-      setMessage("Failed to update client");
+      console.error(t("Failed to update client", "Error al actualizar cliente"), err);
+      setMessage(t("Failed to update client", "Error al actualizar cliente"));
     }
   };
 
@@ -46,7 +48,7 @@ export default function EditClientForm({ client, onClose }) {
 
         {/* Title */}
         <h2 className="text-2xl font-extrabold mb-4 text-yellow-400 text-center">
-          Edit Client
+          {t("Edit Client", "Editar Cliente")}
         </h2>
 
         {message && (
@@ -55,7 +57,7 @@ export default function EditClientForm({ client, onClose }) {
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block mb-1 text-gray-300 font-semibold">Name:</label>
+            <label className="block mb-1 text-gray-300 font-semibold">{t("Name:", "Nombre:")}</label>
             <input
               type="text"
               name="name"
@@ -67,7 +69,7 @@ export default function EditClientForm({ client, onClose }) {
           </div>
 
           <div>
-            <label className="block mb-1 text-gray-300 font-semibold">Email:</label>
+            <label className="block mb-1 text-gray-300 font-semibold">{t("Email:", "Correo:")}</label>
             <input
               type="email"
               name="email"
@@ -79,7 +81,7 @@ export default function EditClientForm({ client, onClose }) {
           </div>
 
           <div>
-            <label className="block mb-1 text-gray-300 font-semibold">Role:</label>
+            <label className="block mb-1 text-gray-300 font-semibold">{t("Role:", "Rol:")}</label>
             <input
               type="text"
               name="role"
@@ -96,14 +98,14 @@ export default function EditClientForm({ client, onClose }) {
               type="submit"
               className="bg-yellow-400 text-black font-bold px-4 py-2 rounded-full w-full hover:scale-105 transition-transform"
             >
-              Save
+              {t("Save", "Guardar")}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="bg-gray-700 text-white px-4 py-2 rounded-full w-full hover:bg-gray-600 transition-colors"
             >
-              Cancel
+              {t("Cancel", "Cancelar")}
             </button>
           </div>
         </form>
