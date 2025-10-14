@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getAllUsers } from "../firebaseUsers";
 import { addPayment } from "../firebasePayments";
 import { useLanguage } from "../context/LanguageContext";
+import { useLoader } from "../context/LoaderContext";
 
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -24,11 +25,14 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
   // Fetch all clients/users
   useEffect(() => {
     const fetchUsers = async () => {
+      showLoader();
       try {
         const allUsers = await getAllUsers();
         setUsers(allUsers);
       } catch (err) {
         console.error(t("Failed to fetch users", "Error al obtener usuarios"), err);
+      }finally{
+        hideLoader()
       }
     };
     fetchUsers();

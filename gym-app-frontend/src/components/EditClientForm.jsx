@@ -4,6 +4,7 @@ import { useLanguage } from "../context/LanguageContext";
 
 export default function EditClientForm({ client, onClose }) {
   const { language } = useLanguage();
+  const { showLoader, hideLoader } = useLoader();
   const t = (en, es) => (language === "en" ? en : es);
 
   const [formData, setFormData] = useState({ ...client });

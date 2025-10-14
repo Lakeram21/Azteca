@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import { QRCode } from "react-qrcode-logo"; 
 import { getAllPayments } from "../firebasePayments";
 import { useLanguage } from "../context/LanguageContext";
+import { useLoader } from "../context/LoaderContext";
 
 export default function ClientPaymentsTable({ user }) {
+  const { showLoader, hideLoader } = useLoader();
+
   const { language } = useLanguage();
   const t = (en, es) => (language === "en" ? en : es);
 
@@ -72,14 +75,19 @@ export default function ClientPaymentsTable({ user }) {
   };
 
   useEffect(() => {
+    showLoader();
     const fetchPayments = async () => {
+      showLoader();
       try {
         const data = await getAllPayments(user.uid);
         setActivePayments(data.filter(isPaymentValid));
         setInactivePayments(data.filter(p => !isPaymentValid(p)));
       } catch (err) {
         console.error("Failed to fetch payments", err);
+      } finally{
+        hideLoader()
       }
+
     };
     fetchPayments();
   }, [user.uid]);

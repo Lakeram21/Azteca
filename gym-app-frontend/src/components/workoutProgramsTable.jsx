@@ -3,9 +3,11 @@ import { getWorkouts, assignWorkout } from "../firebaseWorkouts";
 import WorkoutProgramForm from "./WorkoutProgramForm";
 import { getAllUsers } from "../firebaseUsers";
 import { useLanguage } from "../context/LanguageContext";
+import { useLoader } from "../context/LoaderContext";
 
 export default function WorkoutProgramsTable({ user }) {
   const { language } = useLanguage();
+  const { showLoader, hideLoader } = useLoader();
   const t = (en, es) => (language === "en" ? en : es);
 
   const [programs, setPrograms] = useState([]);
@@ -25,11 +27,14 @@ export default function WorkoutProgramsTable({ user }) {
 
   const fetchClients = async () => {
     try {
+      showLoader();
       const users = await getAllUsers();
       setClients(users);
     } catch (err) {
       console.error(t("Failed to fetch clients", "Error al obtener clientes"), err);
-    }
+    }finally{
+        hideLoader()
+      }
   };
 
   useEffect(() => {

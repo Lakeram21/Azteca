@@ -5,7 +5,9 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import LandingPage from "./pages/Landing";
-import { LanguageProvider } from "./context/LanguageContext"; // ✅ added
+import { LanguageProvider } from "./context/LanguageContext";
+import { LoaderProvider } from "./context/LoaderContext";
+import Loader from "./components/Loader"; // ✅ import your loader
 
 function ProtectedRoute({ user, children }) {
   if (!user) {
@@ -27,30 +29,33 @@ function App() {
 
   return (
     <LanguageProvider>
-      <Router>
-        <Navbar user={user} setUser={setUser} />
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login setUser={setUser} />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute user={user}>
-                <Dashboard user={user} />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute user={user}>
-                <Profile user={user} setUser={setUser} />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
+      <LoaderProvider>
+        <Router>
+          <Navbar user={user} setUser={setUser} />
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login setUser={setUser} />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute user={user}>
+                  <Dashboard user={user} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute user={user}>
+                  <Profile user={user} setUser={setUser} />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+        <Loader /> {/* ✅ Add loader here so it overlays everything */}
+      </LoaderProvider>
     </LanguageProvider>
   );
 }

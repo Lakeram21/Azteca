@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getPaginatedPayments, searchPaymentsByUser } from "../firebasePayments";
 import PaymentsExport from "./PaymentsExport";
 import { useLanguage } from "../context/LanguageContext";
+import { useLoader } from "../context/LoaderContext";
 
 // Helper to check if payment is valid
 function isPaymentValid(payment) {
@@ -69,6 +70,7 @@ function getEndDate(payment) {
 
 export default function PaymentsTable() {
   const { language } = useLanguage();
+    const { showLoader, hideLoader } = useLoader();
   const t = (en, es) => (language === "en" ? en : es);
 
   const itemsPerPage = 50;
@@ -81,6 +83,7 @@ export default function PaymentsTable() {
 
   const fetchPage = async (pageNumber) => {
     try {
+      showLoader();
       const lastDoc = pageCursors[pageNumber - 1];
       const { data, lastVisible, hasMore: more } = await getPaginatedPayments({
         limitCount: itemsPerPage,
@@ -98,7 +101,9 @@ export default function PaymentsTable() {
       setCurrentPage(pageNumber);
     } catch (err) {
       console.error(t("Failed to fetch payments", "Error al obtener pagos"), err);
-    }
+    }finally{
+        hideLoader()
+      }
   };
 
   const handleSearchClick = async () => {

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { getAssignedWorkouts, getWorkouts } from "../firebaseWorkouts";
 import { useLanguage } from "../context/LanguageContext";
+import { useLoader } from "../context/LoaderContext";
 
 export default function ClientWorkoutProgramsTable({ user }) {
   const { language } = useLanguage();
+  const { showLoader, hideLoader } = useLoader();
   const t = (en, es) => (language === "en" ? en : es);
 
   const [assignments, setAssignments] = useState([]);
@@ -11,6 +13,7 @@ export default function ClientWorkoutProgramsTable({ user }) {
 
   useEffect(() => {
     const fetchAssignments = async () => {
+      showLoader();
       try {
         const assigned = await getAssignedWorkouts(user.uid);
 
@@ -24,6 +27,8 @@ export default function ClientWorkoutProgramsTable({ user }) {
         setAssignments(enriched);
       } catch (err) {
         console.error(t("Failed to fetch assignments", "Error al obtener asignaciones"), err);
+      }finally{
+        hideLoader()
       }
     };
 

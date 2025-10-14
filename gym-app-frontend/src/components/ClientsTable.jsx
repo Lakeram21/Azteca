@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import EditClientForm from "./EditClientForm";
 import { getAllUsers } from "../firebaseUsers";
 import { useLanguage } from "../context/LanguageContext";
+import { useLoader } from "../context/LoaderContext";
 
 export default function ClientsTable() {
+  const { showLoader, hideLoader } = useLoader();
+  
   const { language } = useLanguage();
   const t = (en, es) => (language === "en" ? en : es);
 
@@ -11,12 +14,16 @@ export default function ClientsTable() {
   const [selectedClient, setSelectedClient] = useState(null);
 
   useEffect(() => {
+    
     const fetchUsers = async () => {
+      showLoader();
       try {
         const allUsers = await getAllUsers();
         setClients(allUsers);
       } catch (err) {
         console.error(t("Failed to fetch users", "Error al obtener usuarios"), err);
+      }finally{
+        hideLoader()
       }
     };
     fetchUsers();
