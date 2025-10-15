@@ -4,6 +4,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { useLoader } from "../context/LoaderContext";
 export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
   const { language } = useLanguage();
+  const { showLoader, hideLoader } = useLoader();
   const t = (en, es) => (language === "en" ? en : es);
 
   const isEdit = !!workoutToEdit;
@@ -55,6 +56,7 @@ export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
     };
 
     try {
+      showLoader();
       if (isEdit) {
         await editWorkout(workoutToEdit.id, payload);
         onCreated({ id: workoutToEdit.id, ...payload });
@@ -67,6 +69,8 @@ export default function WorkoutProgramForm({ user, workoutToEdit, onCreated }) {
       }
     } catch (err) {
       console.error(t("Failed to save workout", "Error al guardar el programa"), err);
+    }finally{
+      hideLoader()
     }
   };
 

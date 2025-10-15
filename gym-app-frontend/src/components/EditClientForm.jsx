@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { editUser } from "../firebaseUsers"; 
 import { useLanguage } from "../context/LanguageContext";
+import { useLoader } from "../context/LoaderContext";
 
 export default function EditClientForm({ client, onClose }) {
   const { language } = useLanguage();
@@ -17,12 +18,15 @@ export default function EditClientForm({ client, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      showLoader();
       await editUser(client.id, formData);
       setMessage(t("Client updated successfully!", "¡Cliente actualizado correctamente!"));
       setTimeout(onClose, 1000); // Auto-close after 1 second
     } catch (err) {
       console.error(t("Failed to update client", "Error al actualizar cliente"), err);
       setMessage(t("Failed to update client", "Error al actualizar cliente"));
+    }finally {
+      hideLoader();
     }
   };
 

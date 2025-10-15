@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { searchPaymentsByUser } from "../firebasePayments";
 import * as XLSX from "xlsx";
 import { useLanguage } from "../context/LanguageContext";
+import { useLoader } from "../context/LoaderContext";
 
 export default function PaymentsExport({ onExported }) {
   const { language } = useLanguage();
+  const { showLoader, hideLoader } = useLoader();
   const t = (en, es) => (language === "en" ? en : es);
 
   const [year, setYear] = useState("");

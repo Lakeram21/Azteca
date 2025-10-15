@@ -8,6 +8,7 @@ const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satur
 
 export default function PaymentForm({ user, onPaymentRecorded }) {
   const { language } = useLanguage();
+  const { showLoader, hideLoader } = useLoader();
   const t = (en, es) => (language === "en" ? en : es);
 
   const [paymentData, setPaymentData] = useState({
@@ -53,6 +54,7 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      showLoader();
       if (!paymentData.clientId) {
         alert(t("Please select a client", "Por favor seleccione un cliente"));
         return;
@@ -100,6 +102,8 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
     } catch (err) {
       console.error(err);
       setMessage(t("❌ Failed to record payment", "❌ Error al registrar pago"));
+    }finally{
+      hideLoader()
     }
   };
 
