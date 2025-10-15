@@ -26,8 +26,9 @@ export default function PaymentForm({ user, onPaymentRecorded }) {
   // Fetch all clients/users
   useEffect(() => {
     const fetchUsers = async () => {
-      showLoader();
+      
       try {
+        showLoader();
         const allUsers = await getAllUsers();
         setUsers(allUsers);
       } catch (err) {
