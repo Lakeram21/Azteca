@@ -16,8 +16,9 @@ export default function ClientsTable() {
   useEffect(() => {
     
     const fetchUsers = async () => {
-      showLoader();
+      
       try {
+        showLoader();
         const allUsers = await getAllUsers();
         setClients(allUsers);
       } catch (err) {

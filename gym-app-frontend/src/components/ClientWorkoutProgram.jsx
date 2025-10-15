@@ -13,8 +13,9 @@ export default function ClientWorkoutProgramsTable({ user }) {
 
   useEffect(() => {
     const fetchAssignments = async () => {
-      showLoader();
+      
       try {
+        showLoader();
         const assigned = await getAssignedWorkouts(user.uid);
 
         // Fetch workout details for each assigned program

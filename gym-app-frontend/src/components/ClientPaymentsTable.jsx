@@ -77,8 +77,9 @@ export default function ClientPaymentsTable({ user }) {
   useEffect(() => {
     showLoader();
     const fetchPayments = async () => {
-      showLoader();
+      
       try {
+        showLoader();
         const data = await getAllPayments(user.uid);
         setActivePayments(data.filter(isPaymentValid));
         setInactivePayments(data.filter(p => !isPaymentValid(p)));
