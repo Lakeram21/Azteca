@@ -5,7 +5,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 /**
  * Sign up a user with Firebase and create Firestore user doc
  */
-export async function firebaseSignup(email, password, name, role = "user", phone = "") {
+export async function firebaseSignup(email, password, name, status="active",role = "user", phone = "") {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
   if (name) {
@@ -18,6 +18,7 @@ export async function firebaseSignup(email, password, name, role = "user", phone
     name: name || "",
     email,
     phone,
+    status,
     role,
     createdAt: new Date().toISOString(),
   });
@@ -26,6 +27,7 @@ export async function firebaseSignup(email, password, name, role = "user", phone
     uid: userCredential.user.uid,
     email: userCredential.user.email,
     name: userCredential.user.displayName || name || "",
+    status,
     role,
     phone,
   };

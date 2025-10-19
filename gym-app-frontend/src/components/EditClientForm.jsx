@@ -73,7 +73,7 @@ export default function EditClientForm({ client, onClose }) {
             />
           </div>
 
-          <div>
+          {/* <div>
             <label className="block mb-1 text-gray-300 font-semibold">{t("Email:", "Correo:")}</label>
             <input
               type="email"
@@ -83,7 +83,7 @@ export default function EditClientForm({ client, onClose }) {
               className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
               required
             />
-          </div>
+          </div> */}
 
           <div>
             <label className="block mb-1 text-gray-300 font-semibold">{t("Role:", "Rol:")}</label>

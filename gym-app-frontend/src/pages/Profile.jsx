@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useLanguage } from "../context/LanguageContext";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+import { updateUserProfile } from "../firebaseUsers";
 
 export default function Profile({ user, setUser }) {
   const { language } = useLanguage();
@@ -12,6 +10,7 @@ export default function Profile({ user, setUser }) {
     name: "",
     email: "",
     phone: "",
+    currentPassword: "",
     password: ""
   });
   const [message, setMessage] = useState({ text: "", type: "" });
@@ -20,9 +19,10 @@ export default function Profile({ user, setUser }) {
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name,
-        email: user.email,
+        name: user.name || "",
+        email: user.email || "",
         phone: user.phone || "",
+        currentPassword: "",
         password: ""
       });
     }
@@ -35,13 +35,20 @@ export default function Profile({ user, setUser }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      const res = await axios.put(`${API_URL}/users/${user.id}`, formData);
+      const { name, email, phone, currentPassword, password } = formData;
+
+      await updateUserProfile(user.uid, { name, email, phone, password }, currentPassword);
+
       setMessage({ text: t("Profile updated successfully!", "¡Perfil actualizado con éxito!"), type: "success" });
-      setUser(res.data);
+
+      setUser({ ...user, name, email, phone });
+      setFormData({ ...formData, password: "", currentPassword: "" });
+
     } catch (err) {
       console.error(err);
-      setMessage({ text: t("Failed to update profile.", "Error al actualizar el perfil."), type: "error" });
+      setMessage({ text: err.message || t("Failed to update profile.", "Error al actualizar el perfil."), type: "error" });
     } finally {
       setLoading(false);
     }
@@ -94,15 +101,14 @@ export default function Profile({ user, setUser }) {
           </div>
 
           <div>
-            <label className="block mb-1 font-semibold text-gray-200">
-              {t("Email (cannot change)", "Correo electrónico (no se puede cambiar)")}
-            </label>
+            <label className="block mb-1 font-semibold text-gray-200">{t("Email", "Correo electrónico")}</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               readOnly
-              className="w-full border border-gray-600 px-4 py-2 rounded bg-gray-700 text-gray-300 cursor-not-allowed"
+              className="w-full border border-gray-600 px-4 py-2 rounded bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              required
             />
           </div>
 
@@ -118,9 +124,18 @@ export default function Profile({ user, setUser }) {
           </div>
 
           <div>
-            <label className="block mb-1 font-semibold text-gray-200">
-              {t("Password (leave blank to keep)", "Contraseña (deja en blanco para mantenerla)")}
-            </label>
+            <label className="block mb-1 font-semibold text-gray-200">{t("Current Password (required for email/password changes)", "Contraseña actual (requerida para cambios de correo/contraseña)")}</label>
+            <input
+              type="password"
+              name="currentPassword"
+              value={formData.currentPassword}
+              onChange={handleChange}
+              className="w-full border border-gray-600 px-4 py-2 rounded bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-semibold text-gray-200">{t("New Password (leave blank to keep)", "Nueva contraseña (deja en blanco para mantenerla)")}</label>
             <input
               type="password"
               name="password"

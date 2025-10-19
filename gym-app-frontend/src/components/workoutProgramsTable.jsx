@@ -99,12 +99,12 @@ export default function WorkoutProgramsTable({ user }) {
                 >
                   {t("Edit", "Editar")}
                 </button>
-                <button
+                {/* <button
                   onClick={() => console.log("Delete TODO")}
                   className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded font-semibold text-sm"
                 >
                   {t("Delete", "Eliminar")}
-                </button>
+                </button> */}
                 <button
                   onClick={() => handleAssignClick(p)}
                   className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded font-semibold text-sm"

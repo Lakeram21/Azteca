@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { getPaginatedPayments, searchPaymentsByUser } from "../firebasePayments";
+import { 
+  getPaginatedPayments,
+  searchPaymentsByUser 
+} from "../firebasePayments";
 import PaymentsExport from "./PaymentsExport";
+import PaymentActions from "./PaymentActions";
 import { useLanguage } from "../context/LanguageContext";
 import { useLoader } from "../context/LoaderContext";
 
-// Helper to check if payment is valid
+// ✅ Helper to check if payment is valid
 function isPaymentValid(payment) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -25,7 +29,7 @@ function isPaymentValid(payment) {
     case "per month": {
       const start = new Date(payment.date);
       const end = new Date(start);
-      end.setMonth(start.getMonth() + 1);
+      end.setMonth(end.getMonth() + 1);
       return today < end;
     }
     case "per several": {
@@ -39,7 +43,7 @@ function isPaymentValid(payment) {
   }
 }
 
-// Helper to get end date
+// ✅ Helper to get end date
 function getEndDate(payment) {
   switch (payment.type) {
     case "per day": {
@@ -70,7 +74,7 @@ function getEndDate(payment) {
 
 export default function PaymentsTable() {
   const { language } = useLanguage();
-    const { showLoader, hideLoader } = useLoader();
+  const { showLoader, hideLoader } = useLoader();
   const t = (en, es) => (language === "en" ? en : es);
 
   const itemsPerPage = 50;
@@ -81,6 +85,16 @@ export default function PaymentsTable() {
   const [hasMore, setHasMore] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
 
+  // ✅ Sorting helper — valid first, then most recent
+  const sortPayments = (data) => {
+    return data.sort((a, b) => {
+      const aValid = isPaymentValid(a);
+      const bValid = isPaymentValid(b);
+      if (aValid !== bValid) return aValid ? -1 : 1; // valid first
+      return new Date(b.date) - new Date(a.date); // then newest first
+    });
+  };
+
   const fetchPage = async (pageNumber) => {
     try {
       showLoader();
@@ -90,20 +104,22 @@ export default function PaymentsTable() {
         lastDoc,
       });
 
+      const sortedData = sortPayments(data);
+
       setPageCursors((prev) => {
         const updated = [...prev];
         updated[pageNumber] = lastVisible;
         return updated;
       });
 
-      setPayments(data);
+      setPayments(sortedData);
       setHasMore(more);
       setCurrentPage(pageNumber);
     } catch (err) {
       console.error(t("Failed to fetch payments", "Error al obtener pagos"), err);
-    }finally{
-        hideLoader()
-      }
+    } finally {
+      hideLoader();
+    }
   };
 
   const handleSearchClick = async () => {
@@ -117,7 +133,8 @@ export default function PaymentsTable() {
     try {
       setIsSearching(true);
       const data = await searchPaymentsByUser(search.trim());
-      setPayments(data);
+      const sortedData = sortPayments(data);
+      setPayments(sortedData);
       setHasMore(false);
       setCurrentPage(1);
     } catch (err) {
@@ -135,8 +152,8 @@ export default function PaymentsTable() {
         {t("All Payments", "Todos los Pagos")}
       </h2>
 
-      {/* Search */}
-      <div className="flex gap-2 mb-6">
+      {/* 🔍 Search */}
+      <div className="flex flex-col sm:flex-row gap-2 mb-6">
         <input
           type="text"
           placeholder={t("🔎 Search by client name or email", "🔎 Buscar por nombre o correo")}
@@ -152,22 +169,23 @@ export default function PaymentsTable() {
         </button>
       </div>
 
-      {/* Export */}
+      {/* 📤 Export */}
       <PaymentsExport />
 
-      {/* Table */}
+      {/* 📋 Table */}
       <div className="overflow-x-auto rounded-lg">
-        <table className="w-full border-collapse">
+        <table className="w-full min-w-[1000px] border-collapse">
           <thead>
             <tr className="bg-gray-800 text-yellow-300 uppercase text-sm tracking-wider">
               <th className="p-3 text-left">{t("Client Name", "Nombre del Cliente")}</th>
               <th className="p-3 text-left">{t("Client Email", "Correo del Cliente")}</th>
-              <th className="p-3 text-left">{t("Type", "Tipo")}</th>
-              <th className="p-3 text-left">{t("Amount", "Monto")}</th>
-              <th className="p-3 text-left">{t("Start Date", "Fecha Inicio")}</th>
-              <th className="p-3 text-left">{t("End Date", "Fecha Fin")}</th>
-              <th className="p-3 text-left">{t("Selected Dates", "Fechas Seleccionadas")}</th>
-              <th className="p-3 text-left">{t("Status", "Estado")}</th>
+              <th className="p-3 text-left whitespace-nowrap">{t("Type", "Tipo")}</th>
+              <th className="p-3 text-left whitespace-nowrap">{t("Amount", "Monto")}</th>
+              <th className="p-3 text-left hidden md:table-cell">{t("Start Date", "Fecha Inicio")}</th>
+              <th className="p-3 text-left hidden md:table-cell">{t("End Date", "Fecha Fin")}</th>
+              <th className="p-3 text-left hidden lg:table-cell">{t("Selected Dates", "Fechas Seleccionadas")}</th>
+              <th className="p-3 text-left whitespace-nowrap">{t("Status", "Estado")}</th>
+              <th className="p-3 text-left whitespace-nowrap">{t("Actions", "Acciones")}</th>
             </tr>
           </thead>
           <tbody>
@@ -175,18 +193,22 @@ export default function PaymentsTable() {
               payments.map((p) => (
                 <tr
                   key={p.id}
-                  className="hover:bg-gray-800 transition-all duration-200 border-b border-gray-700"
+                  className={`transition-all duration-200 border-b border-gray-700 ${
+                    isPaymentValid(p)
+                      ? "hover:bg-gray-800"
+                      : "bg-gray-800/40 text-gray-400"
+                  }`}
                 >
-                  <td className="p-3 font-semibold">{p.client.name || "-"}</td>
-                  <td className="p-3">{p.client.email || "-"}</td>
-                  <td className="p-3 capitalize">{p.type}</td>
-                  <td className="p-3 font-bold text-green-400">${p.amount}</td>
-                  <td className="p-3">{p.date}</td>
-                  <td className="p-3">{getEndDate(p).toISOString().split("T")[0]}</td>
-                  <td className="p-3">
+                  <td className="p-3 font-semibold whitespace-nowrap">{p.client.name || "-"}</td>
+                  <td className="p-3 whitespace-nowrap">{p.client.email || "-"}</td>
+                  <td className="p-3 capitalize whitespace-nowrap">{p.type}</td>
+                  <td className="p-3 font-bold text-green-400 whitespace-nowrap">${p.amount}</td>
+                  <td className="p-3 hidden md:table-cell whitespace-nowrap">{p.date}</td>
+                  <td className="p-3 hidden md:table-cell whitespace-nowrap">{getEndDate(p).toISOString().split("T")[0]}</td>
+                  <td className="p-3 hidden lg:table-cell whitespace-nowrap">
                     {p.type === "per several" ? p.selectedDates?.join(", ") : "-"}
                   </td>
-                  <td className="p-3">
+                  <td className="p-3 whitespace-nowrap">
                     {isPaymentValid(p) ? (
                       <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                         ✅ {t("Valid", "Válido")}
@@ -197,11 +219,18 @@ export default function PaymentsTable() {
                       </span>
                     )}
                   </td>
+                  <td className="p-3 whitespace-nowrap">
+                    <PaymentActions
+                      payment={p}
+                      onUpdated={() => fetchPage(currentPage)}
+                      onDeleted={() => fetchPage(currentPage)}
+                    />
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="text-center py-4 text-gray-400">
+                <td colSpan="9" className="text-center py-4 text-gray-400">
                   {t("No payments found", "No se encontraron pagos")}
                 </td>
               </tr>
@@ -210,9 +239,9 @@ export default function PaymentsTable() {
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* 🔢 Pagination */}
       {!isSearching && (
-        <div className="flex justify-center items-center gap-3 mt-6">
+        <div className="flex justify-center items-center gap-3 mt-6 flex-wrap">
           <button
             onClick={() => fetchPage(currentPage - 1)}
             disabled={currentPage === 1}

@@ -1,17 +1,30 @@
 import { db } from "./firebase";
 import { 
   collection, addDoc, getDocs, query, where, doc, getDoc,
-  orderBy, limit, startAfter 
+  orderBy, limit, startAfter, updateDoc, deleteDoc
 } from "firebase/firestore";
 
 /**
  * Add a payment to Firestore
  * @param {object} payment - {clientId, type, amount, date, durationDays, selectedDates, userId}
  */
+// export async function addPayment(payment) {
+//   const paymentsCol = collection(db, "payments");
+//   await addDoc(paymentsCol, {
+//     ...payment,
+//     createdAt: new Date().toISOString()
+//   });
+// }
+
 export async function addPayment(payment) {
-  const paymentsCol = collection(db, "payments");
-  await addDoc(paymentsCol, {
+  const userRef = doc(db, "users", payment.clientId);
+  const userSnap = await getDoc(userRef);
+  const clientData = userSnap.exists() ? userSnap.data() : {};
+
+  await addDoc(collection(db, "payments"), {
     ...payment,
+    clientName: clientData.name || "",
+    clientEmail: clientData.email || "",
     createdAt: new Date().toISOString()
   });
 }
@@ -50,17 +63,10 @@ export async function getAllPayments(userId = null) {
     const payment = { id: pDoc.id, ...pDoc.data() };
 
     // Fetch the related client from "users" collection
-    let clientInfo = null;
+    let clientInfo = {};
     if (payment.clientId) {
-      try {
-        const userRef = doc(db, "users", payment.clientId);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          clientInfo = { id: userSnap.id, ...userSnap.data() };
-        }
-      } catch (err) {
-        console.warn(`Failed to fetch client ${payment.clientId}`, err);
-      }
+      clientInfo.name = payment.clientName || "";
+      clientInfo.email = payment.clientEmail || "";
     }
 
     payments.push({
@@ -166,14 +172,19 @@ export async function getPaginatedPayments({ limitCount = 6, lastDoc = null, sea
 
   for (const pDoc of snapshot.docs) {
     const payment = { id: pDoc.id, ...pDoc.data() };
-    let clientInfo = null;
-    try {
-      const userRef = doc(db, "users", payment.clientId);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) clientInfo = { id: userSnap.id, ...userSnap.data() };
-    } catch (err) {
-      console.warn(`Failed to fetch client ${payment.clientId}`, err);
+    console.log("Fetched payment:", payment);
+    console.log("Payment clientId:", payment.clientId);
+    let clientInfo = {
+      name: payment.clientName || "",
+      email: payment.clientEmail || ""
     }
+    // try {
+    //   const userRef = doc(db, "users", payment.clientId);
+    //   const userSnap = await getDoc(userRef);
+    //   if (userSnap.exists()) clientInfo = { id: userSnap.id, ...userSnap.data() };
+    // } catch (err) {
+    //   console.warn(`Failed to fetch client ${payment.clientId}`, err);
+    // }
     payments.push({ ...payment, client: clientInfo || {} });
   }
 
@@ -181,4 +192,28 @@ export async function getPaginatedPayments({ limitCount = 6, lastDoc = null, sea
   const hasMore = snapshot.docs.length === limitCount;
 
   return { data: payments, lastVisible, hasMore };
+}
+
+
+
+/**
+ * Update a payment
+ * @param {string} paymentId 
+ * @param {object} updatedData 
+ */
+export async function updatePayment(paymentId, updatedData) {
+  const ref = doc(db, "payments", paymentId);
+  await updateDoc(ref, {
+    ...updatedData,
+    updatedAt: new Date().toISOString()
+  });
+}
+
+/**
+ * Delete a payment
+ * @param {string} paymentId 
+ */
+export async function deletePayment(paymentId) {
+  const ref = doc(db, "payments", paymentId);
+  await deleteDoc(ref);
 }
