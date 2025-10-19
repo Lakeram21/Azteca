@@ -25,7 +25,7 @@ export default function EditClientForm({ client, onClose }) {
     } catch (err) {
       console.error(t("Failed to update client", "Error al actualizar cliente"), err);
       setMessage(t("Failed to update client", "Error al actualizar cliente"));
-    }finally {
+    } finally {
       hideLoader();
     }
   };
@@ -73,18 +73,6 @@ export default function EditClientForm({ client, onClose }) {
             />
           </div>
 
-          {/* <div>
-            <label className="block mb-1 text-gray-300 font-semibold">{t("Email:", "Correo:")}</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email || ""}
-              onChange={handleChange}
-              className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
-              required
-            />
-          </div> */}
-
           <div>
             <label className="block mb-1 text-gray-300 font-semibold">{t("Role:", "Rol:")}</label>
             <input
@@ -96,7 +84,20 @@ export default function EditClientForm({ client, onClose }) {
             />
           </div>
 
-          {/* Add more fields if needed */}
+          {/* NEW: Status dropdown */}
+          <div>
+            <label className="block mb-1 text-gray-300 font-semibold">{t("Status:", "Estado:")}</label>
+            <select
+              name="status"
+              value={formData.status || "active"}
+              onChange={handleChange}
+              className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+            >
+              <option value="active">{t("Active", "Activo")}</option>
+              <option value="inactive">{t("Inactive", "Inactivo")}</option>
+              <option value="suspended">{t("Suspended", "Suspendido")}</option>
+            </select>
+          </div>
 
           <div className="flex justify-between mt-4 gap-2">
             <button

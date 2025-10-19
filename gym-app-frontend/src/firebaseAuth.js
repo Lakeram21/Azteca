@@ -1,7 +1,9 @@
 import { auth, db } from "./firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-
+// import { useLanguage } from "./context/LanguageContext";
+// const { language } = useLanguage();
+// const t = (en, es) => (language === "en" ? en : es);
 /**
  * Sign up a user with Firebase and create Firestore user doc
  */
@@ -47,7 +49,15 @@ export async function firebaseSignin(email, password) {
     throw new Error("User not found in Firestore");
   }
 
-  return { uid: userCredential.user.uid, ...docSnap.data() };
+  const userData = docSnap.data();
+
+  if (userData.status !== "active") {
+    // Immediately sign out the user and throw an error
+    await signOut(auth);
+    throw new Error( "Su cuenta está inactiva. Por favor contacte al soporte.");
+  }
+
+  return { uid: userCredential.user.uid, ...userData };
 }
 
 /**

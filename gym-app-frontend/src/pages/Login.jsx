@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { firebaseSignup, firebaseSignin } from "../firebaseAuth";
 import { useLanguage } from "../context/LanguageContext";
+import { useLoader } from "../context/LoaderContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
 export default function Login({ setUser }) {
   const { language } = useLanguage();
+  const { showLoader, hideLoader } = useLoader();
   const t = (en, es) => (language === "en" ? en : es);
 
   const [email, setEmail] = useState("");
@@ -21,6 +23,7 @@ export default function Login({ setUser }) {
     setError("");
 
     try {
+      showLoader();
       let userData;
 
       if (isSignup) {
@@ -35,6 +38,8 @@ export default function Login({ setUser }) {
     } catch (err) {
       console.error(err);
       setError(err.message || t("Firebase error", "Error de Firebase"));
+    }finally{
+      hideLoader()
     }
   };
 

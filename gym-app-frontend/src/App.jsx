@@ -10,7 +10,8 @@ import { LoaderProvider } from "./context/LoaderContext";
 import Loader from "./components/Loader"; // ✅ import your loader
 
 function ProtectedRoute({ user, children }) {
-  if (!user) {
+  // Only allow access if user exists AND status is active
+  if (!user || user.status !== "active") {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -33,8 +34,11 @@ function App() {
         <Router>
           <Navbar user={user} setUser={setUser} />
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login setUser={setUser} />} />
+
+            {/* Protected routes */}
             <Route
               path="/dashboard"
               element={
@@ -51,10 +55,12 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
-        <Loader /> {/* ✅ Add loader here so it overlays everything */}
+        <Loader />
       </LoaderProvider>
     </LanguageProvider>
   );
