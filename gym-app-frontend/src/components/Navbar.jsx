@@ -91,7 +91,7 @@ export default function Navbar({ user, setUser }) {
         {/* 🌐 Language Toggle */}
         <button
           onClick={toggleLanguage}
-          className="ml-4 bg-yellow-500 text-gray-900 px-3 py-1 rounded-lg font-bold"
+          className="ml-4 bg-yellow-500 text-gray-900 px-3 py-1 mt-2 rounded-lg font-bold"
         >
           {language === "en" ? "ES" : "EN"}
         </button>
