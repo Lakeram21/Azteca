@@ -1,38 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getRoutines, getPrices } from "../firebaseAds";
 import { useLanguage } from "../context/LanguageContext";
 
-const routines = [
-  {
-    title: { en: "Push–Pull–Legs (PPL) Split", es: "División Push–Pull–Legs (PPL)" },
-    description: {
-      en: "Push Day → chest, shoulders, triceps. Pull Day → back, biceps. Legs Day → quads, hamstrings, glutes, calves.",
-      es: "Día Push → pecho, hombros, tríceps. Día Pull → espalda, bíceps. Día Legs → cuádriceps, isquiotibiales, glúteos, pantorrillas.",
-    },
-    image: "/public/dashboard_background.jpg",
-  },
-  {
-    title: { en: "Full Body Workout", es: "Entrenamiento de Cuerpo Completo" },
-    description: {
-      en: "Each session trains all major muscle groups, often 2–4 days per week.",
-      es: "Cada sesión entrena todos los grupos musculares principales, a menudo 2–4 días por semana.",
-    },
-    image: "/public/dashboard_background2.jpg",
-  },
-  {
-    title: { en: "High-Intensity Interval Training (HIIT)", es: "Entrenamiento Interválico de Alta Intensidad (HIIT)" },
-    description: {
-      en: "Alternates short bursts of intense effort with recovery periods. Usually 15–30 minutes per session.",
-      es: "Alterna ráfagas cortas de esfuerzo intenso con periodos de recuperación. Normalmente 15–30 minutos por sesión.",
-    },
-    image: "/public/profile_background.jpg",
-  },
-];
 
-function Landing() {
+export default function Landing() {
+  const [routines, setRoutines] = useState([]);
+  const [prices, setPrices] = useState([]);
   const [currentRoutine, setCurrentRoutine] = useState(0);
+
   const { language } = useLanguage();
   const t = (en, es) => (language === "en" ? en : es);
+
+  // Fetch routines and prices from Firebase
+  useEffect(() => {
+    async function fetchData() {
+      const r = await getRoutines();
+      setRoutines(r);
+
+      const p = await getPrices();
+      setPrices(p);
+    }
+    fetchData();
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col text-slate-100 bg-gradient-to-b from-indigo-950 via-indigo-900 to-indigo-950">
@@ -46,15 +36,6 @@ function Landing() {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/90 via-indigo-800/70 to-indigo-950/90" />
-        <div className="absolute bottom-0 w-full">
-          <svg viewBox="0 0 1440 320" className="w-full h-32" preserveAspectRatio="none">
-            <path
-              fill="#f1f5f9"
-              d="M0,160L80,154.7C160,149,320,139,480,128C640,117,800,107,960,122.7C1120,139,1280,181,1360,202.7L1440,224V320H0Z"
-            />
-          </svg>
-        </div>
-
         <div className="relative z-10 max-w-3xl">
           <h1 className="text-5xl md:text-6xl font-extrabold text-amber-300 drop-shadow-lg">
             {t("Train Smarter. Get Stronger.", "Entrena Inteligente. Sé Más Fuerte.")}
@@ -82,7 +63,32 @@ function Landing() {
         </div>
       </div>
 
-      {/* Features Section */}
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 px-6 bg-slate-100 text-gray-900">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-indigo-800 mb-6">{t("Membership Plans", "Planes de Membresía")}</h2>
+          <p className="text-slate-600 mb-12">{t("Flexible pricing that adapts to your lifestyle.", "Precios flexibles que se adaptan a tu estilo de vida.")}</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {prices.map((plan, idx) => (
+              <div key={plan.id} className={`p-8 rounded-2xl shadow-xl ${idx === 1 ? "bg-amber-300 text-indigo-950 transform scale-105" : "bg-white text-gray-900 border border-slate-200"}`}>
+                <h3 className="text-2xl font-semibold mb-4">{plan.title}</h3>
+                <p className="text-4xl font-bold mb-6">{plan.amount}</p>
+                <ul className="text-slate-600 space-y-2 mb-6">
+                  {plan.features?.map((f, i) => <li key={i}>✅ {f}</li>)}
+                </ul>
+                <Link
+                  to="/login"
+                  className={`block font-bold py-2 rounded-lg hover:scale-105 transition ${idx === 1 ? "bg-indigo-900 text-amber-300" : "bg-amber-300 text-indigo-950"}`}
+                >
+                  {t("Join Now", "Unirse")}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+       {/* Features Section */}
       <section className="py-20 px-6 bg-indigo-900 text-slate-100">
         <div className="max-w-6xl mx-auto text-center mb-12">
           <h2 className="text-4xl font-bold text-amber-300 mb-4">{t("Why Choose Us?", "¿Por Qué Elegirnos?")}</h2>
@@ -119,105 +125,55 @@ function Landing() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-6 bg-slate-100 text-gray-900">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-indigo-800 mb-6">{t("Membership Plans", "Planes de Membresía")}</h2>
-          <p className="text-slate-600 mb-12">{t("Flexible pricing that adapts to your lifestyle.", "Precios flexibles que se adaptan a tu estilo de vida.")}</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-              <h3 className="text-2xl font-semibold mb-4">{t("Basic", "Básico")}</h3>
-              <p className="text-4xl font-bold text-amber-400 mb-6">$20/mo</p>
-              <ul className="text-slate-600 space-y-2 mb-6">
-                <li>✅ {t("Gym Access", "Acceso al Gimnasio")}</li>
-                <li>❌ {t("Personal Training", "Entrenamiento Personal")}</li>
-                <li>❌ {t("No Workout Tracking", "Sin Seguimiento de Entrenamiento")}</li>
-              </ul>
-              <Link
-                to="/login"
-                className="block bg-amber-300 text-indigo-950 font-bold py-2 rounded-lg hover:scale-105 transition"
-              >
-                {t("Join Now", "Unirse")}
-              </Link>
-            </div>
-
-            <div className="bg-amber-300 text-indigo-950 p-8 rounded-2xl shadow-xl transform scale-105">
-              <h3 className="text-2xl font-semibold mb-4">{t("Standard", "Estándar")}</h3>
-              <p className="text-4xl font-bold mb-6">$35/mo</p>
-              <ul className="space-y-2 mb-6">
-                <li>✅ {t("Gym Access", "Acceso al Gimnasio")}</li>
-                <li>✅ {t("Workout Plans", "Planes de Entrenamiento")}</li>
-                <li>✅ {t("Workout Tracking", "Seguimiento de Entrenamiento")}</li>
-              </ul>
-              <Link
-                to="/login"
-                className="block bg-indigo-900 text-amber-300 font-bold py-2 rounded-lg hover:scale-105 transition"
-              >
-                {t("Join Now", "Unirse")}
-              </Link>
-            </div>
-
-            <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-              <h3 className="text-2xl font-semibold mb-4">{t("Premium", "Premium")}</h3>
-              <p className="text-4xl font-bold text-amber-400 mb-6">$50/mo</p>
-              <ul className="text-slate-600 space-y-2 mb-6">
-                <li>✅ {t("Gym Access", "Acceso al Gimnasio")}</li>
-                <li>✅ {t("Workout Plans", "Planes de Entrenamiento")}</li>
-                <li>✅ {t("Workout Tracking", "Seguimiento de Entrenamiento")}</li>
-                <li>✅ {t("Personal Training", "Entrenamiento Personal")}</li>
-                <li>✅ {t("Personal Meal Plans", "Planes de Comida Personalizados")}</li>
-              </ul>
-              <Link
-                to="/login"
-                className="block bg-amber-300 text-indigo-950 font-bold py-2 rounded-lg hover:scale-105 transition"
-              >
-                {t("Join Now", "Unirse")}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Workout Routines Section */}
       <section className="py-16 bg-slate-50 text-gray-900 flex flex-col items-center">
         <h2 className="text-4xl font-bold text-indigo-700 mb-8">{t("Workout Routines", "Rutinas de Entrenamiento")}</h2>
 
-        <div className="relative w-full max-w-4xl overflow-hidden">
-          <div className="flex transition-transform duration-500" style={{ transform: `translateX(-${currentRoutine * 100}%)` }}>
-            {routines.map((routine, index) => (
-              <div key={index} className="flex-none w-full px-4">
-                <div className="bg-white rounded-3xl shadow-lg p-6 flex flex-col md:flex-row gap-6 items-center">
-                  <img
-                    src={routine.image}
-                    alt={routine.title[language]}
-                    className="w-full md:w-1/2 h-64 object-cover rounded-2xl"
-                  />
-                  <div className="flex flex-col gap-4 md:w-1/2">
-                    <h3 className="text-2xl font-bold text-indigo-700">{routine.title[language]}</h3>
-                    <p className="text-slate-600">{routine.description[language]}</p>
-                    <a
-                      href="#"
-                      className="bg-indigo-700 text-white font-bold px-6 py-2 rounded-full text-center w-fit hover:bg-indigo-600 transition"
-                    >
-                      {t("Check Out Guides", "Ver Guías")}
-                    </a>
+        {routines.length > 0 && (
+          <div className="relative w-full max-w-4xl overflow-hidden">
+            <div
+              className="flex transition-transform duration-500"
+              style={{ transform: `translateX(-${currentRoutine * 100}%)` }}
+            >
+              {routines.map((routine, index) => (
+                <div key={routine.id} className="flex-none w-full px-4">
+                  <div className="bg-white rounded-3xl shadow-lg p-6 flex flex-col md:flex-row gap-6 items-center">
+                   
+                      <img
+                        src="/profile_background.jpg"
+                        alt={routine.title}
+                        className="w-full md:w-1/2 h-64 object-cover rounded-2xl"
+                      />
+                   
+                    <div className="flex flex-col gap-4 md:w-1/2">
+                      <h3 className="text-2xl font-bold text-indigo-700">{routine.title}</h3>
+                      <p className="text-slate-600">{routine.description}</p>
+                      <a
+                        href={routine.image}
+                        className="bg-indigo-700 text-white font-bold px-6 py-2 rounded-full text-center w-fit hover:bg-indigo-600 transition"
+                      >
+                        {t("Check Out Guides", "Ver Guías")}
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          <div className="flex justify-center mt-6 gap-3">
-            {routines.map((_, idx) => (
-              <button
-                key={idx}
-                className={`w-4 h-4 rounded-full transition-colors ${currentRoutine === idx ? "bg-indigo-700" : "bg-slate-400"}`}
-                onClick={() => setCurrentRoutine(idx)}
-              />
-            ))}
+            <div className="flex justify-center mt-6 gap-3">
+              {routines.map((_, idx) => (
+                <button
+                  key={idx}
+                  className={`w-4 h-4 rounded-full transition-colors ${
+                    currentRoutine === idx ? "bg-indigo-700" : "bg-slate-400"
+                  }`}
+                  onClick={() => setCurrentRoutine(idx)}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
       </section>
 
       {/* Footer */}
@@ -227,5 +183,3 @@ function Landing() {
     </div>
   );
 }
-
-export default Landing;

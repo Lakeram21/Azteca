@@ -7,12 +7,14 @@ import ClientsTable from "../components/ClientsTable.jsx";
 import WorkoutProgramsTable from "../components/workoutProgramsTable.jsx";
 import WorkoutProgramForm from "../components/WorkoutProgramForm.jsx";
 import AdminQRScannerModal from "../components/AdminQRScannerModal.jsx";
-import { useLanguage } from "../context/LanguageContext"; // ✅ import
+import AdminRoutines from "../components/AdminRoutines.jsx"; // ✅ new component
+import AdminPrices from "../components/AdminPrices.jsx"; // ✅ new component
+import { useLanguage } from "../context/LanguageContext";
 
 const Dashboard = ({ user }) => {
   const [activeSection, setActiveSection] = useState(null);
-  const { language } = useLanguage(); // ✅ get language
-  const t = (en, es) => (language === "en" ? en : es); // ✅ helper
+  const { language } = useLanguage();
+  const t = (en, es) => (language === "en" ? en : es);
 
   const toggleSection = (section) =>
     setActiveSection((prev) => (prev === section ? null : section));
@@ -35,8 +37,8 @@ const Dashboard = ({ user }) => {
         <p className="text-gray-300 mt-2">
           {user.role === "admin"
             ? t(
-                "Manage clients, payments, and workout programs efficiently",
-                "Administra clientes, pagos y programas de entrenamiento eficientemente"
+                "Manage clients, payments, workout programs, routines, and ads efficiently",
+                "Administra clientes, pagos, programas de entrenamiento, rutinas y anuncios eficientemente"
               )
             : t(
                 "Track your payments and workout programs here",
@@ -54,6 +56,8 @@ const Dashboard = ({ user }) => {
               { key: "paymentsTable", label: t("Show Payments", "Mostrar Pagos") },
               { key: "clientsTable", label: t("View Clients", "Ver Clientes") },
               { key: "workoutPrograms", label: t("Workout Programs", "Programas de Entrenamiento") },
+              { key: "routines", label: t("Routines", "Rutinas") }, // ✅ new
+              { key: "ads", label: t("Ads", "Anuncios") }, // ✅ new
               { key: "verifyPayment", label: t("Verify Payment", "Verificar Pago") },
             ].map((tab) => (
               <button
@@ -80,6 +84,8 @@ const Dashboard = ({ user }) => {
                 <WorkoutProgramForm user={user} />
               </div>
             )}
+            {activeSection === "routines" && <AdminRoutines />} {/* ✅ new */}
+            {activeSection === "ads" && <AdminPrices />} {/* ✅ new */}
           </div>
         </main>
       ) : (
